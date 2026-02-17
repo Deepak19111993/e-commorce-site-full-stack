@@ -252,7 +252,10 @@ export default function AdminDashboard() {
             const data = await res.json();
 
             if (res.ok) {
-                toast.success('Product imported successfully!', { id: toastId });
+                const message = data.count
+                    ? `Successfully imported ${data.count} products!`
+                    : 'Product imported successfully!';
+                toast.success(message, { id: toastId });
                 setImportUrl('');
                 fetchProducts();
             } else {

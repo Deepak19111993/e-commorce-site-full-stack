@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/db';
 import { products } from '@/db/schema';
+import { eq } from 'drizzle-orm';
 
 export async function POST(req: NextRequest) {
     try {
@@ -42,49 +43,109 @@ export async function POST(req: NextRequest) {
         }
 
         const nextData = JSON.parse(nextDataMatch[1]);
-        const pd = nextData.props?.pageProps?.productDetails;
-        let productData = pd?.product || pd?.product_details?.product;
+        const pageProps = nextData.props?.pageProps;
 
-        // Handle alternative structure where product is in children
-        if (!productData && pd?.children?.[0]) {
-            productData = pd.children[0];
+        const importedProducts: any[] = [];
+
+        // Helper to extract fields from a product object
+        const extractFields = (item: any, pd?: any) => {
+            const name = item.p_desc || item.name || item.desc || item.title;
+            const description = item.desc || pd?.about_the_product || item.description || name || '';
+
+            let price = item.sp || item.mrp || item.price || item.pricing?.discount?.mrp;
+            if (!price && item.pricing?.discount?.prim_price?.sp) {
+                price = item.pricing.discount.prim_price.sp;
+            } else if (!price && item.pricing?.discount?.mrp) {
+                price = item.pricing.discount.mrp;
+            }
+
+            const image = item.images?.[0]?.l || item.images?.[0]?.s || item.image_url;
+
+            return { name, description, price, image };
+        };
+
+        // Aggressive recursive search for products
+        const seenObjects = new Set();
+        const findProductsInObj = (obj: any): any[] => {
+            if (!obj || typeof obj !== 'object' || seenObjects.has(obj)) return [];
+            seenObjects.add(obj);
+
+            let found: any[] = [];
+
+            if (Array.isArray(obj)) {
+                // Check if this array contains product-like items
+                if (obj.length > 0 && (obj[0].sku || obj[0].p_desc || obj[0].product_id)) {
+                    found = [...found, ...obj];
+                }
+                // Continue searching inside array items
+                for (const item of obj) {
+                    found = [...found, ...findProductsInObj(item)];
+                }
+            } else {
+                // If it's an object, check its keys
+                for (const key in obj) {
+                    if (key === 'products' && Array.isArray(obj[key])) {
+                        found = [...found, ...obj[key]];
+                    }
+                    found = [...found, ...findProductsInObj(obj[key])];
+                }
+            }
+            return found;
+        };
+
+        const rawItems = findProductsInObj(pageProps || nextData);
+
+        // Use a map to deduplicate by name
+        const uniqueProducts = new Map();
+
+        // Single product fallback if recursive search missed it (though unlikely now)
+        if (pageProps?.productDetails) {
+            const pd = pageProps.productDetails;
+            let item = pd.product || pd.product_details?.product;
+            if (!item && pd.children?.[0]) item = pd.children[0];
+            if (item) {
+                const fields = extractFields(item, pd);
+                if (fields.name && fields.price !== undefined) {
+                    uniqueProducts.set(fields.name, { ...fields, stock: 100 });
+                }
+            }
         }
 
-        if (!productData) {
-            console.error('Extraction failed: Product details not found in NEXT_DATA');
-            return NextResponse.json({ error: 'Product details not found in page data' }, { status: 422 });
+        for (const item of rawItems) {
+            const fields = extractFields(item);
+            if (fields.name && fields.price !== undefined) {
+                if (!uniqueProducts.has(fields.name)) {
+                    uniqueProducts.set(fields.name, { ...fields, stock: 100 });
+                }
+            }
         }
 
-        // Extract relevant fields with fallback paths
-        const name = productData.p_desc || productData.name || productData.desc || productData.title;
-        const description = productData.desc || pd?.about_the_product || productData.description || '';
+        const toImport = Array.from(uniqueProducts.values());
 
-        // Price extraction (handling nested pricing object)
-        let price = productData.sp || productData.mrp || productData.price;
-        if (!price && productData.pricing?.discount?.prim_price?.sp) {
-            price = productData.pricing.discount.prim_price.sp;
-        } else if (!price && productData.pricing?.discount?.mrp) {
-            price = productData.pricing.discount.mrp;
+        if (toImport.length === 0) {
+            return NextResponse.json({ error: 'No products found on the page' }, { status: 422 });
         }
 
-        const imageUrl = productData.images?.[0]?.l || productData.images?.[0]?.s || productData.image_url;
-
-        console.log('Extracted Data:', { name, price, imageUrl });
-
-        if (!name || price === undefined) {
-            return NextResponse.json({ error: 'Missing core product details (name or price)' }, { status: 422 });
+        // Insert products into database
+        const savedProducts = [];
+        for (const p of toImport) {
+            const existing = await db.select().from(products).where(eq(products.name, p.name)).limit(1);
+            if (existing.length === 0) {
+                try {
+                    const [saved] = await db.insert(products).values(p).returning();
+                    savedProducts.push(saved);
+                } catch (e) {
+                    console.error(`Failed to insert product ${p.name}:`, e);
+                }
+            }
         }
 
-        // Insert into database
-        const [newProduct] = await db.insert(products).values({
-            name,
-            description,
-            price: String(price),
-            stock: 100, // Default stock
-            image: imageUrl,
-        }).returning();
-
-        return NextResponse.json(newProduct);
+        return NextResponse.json({
+            message: `Successfully processed ${toImport.length} products. Imported ${savedProducts.length} new ones.`,
+            count: savedProducts.length,
+            totalFound: toImport.length,
+            products: savedProducts
+        });
 
     } catch (error: any) {
         console.error('Import error:', error);

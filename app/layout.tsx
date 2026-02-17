@@ -35,7 +35,7 @@ export default function RootLayout({
           {children}
         </main>
         <Toaster />
-        <Script id="vapi-ai-init" strategy="afterInteractive">
+        {/* <Script id="vapi-ai-init" strategy="afterInteractive">
           {`
             var vapiInstance = null;
             const assistant = "4e33fffe-7a27-4a4e-a4f6-cae8ad6668eb"; 
@@ -58,7 +58,7 @@ export default function RootLayout({
                 };
             })(document, "script");
           `}
-        </Script>
+        </Script> */}
       </body>
     </html>
   );
