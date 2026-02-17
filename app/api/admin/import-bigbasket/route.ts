@@ -61,7 +61,11 @@ export async function POST(req: NextRequest) {
 
             const image = item.images?.[0]?.l || item.images?.[0]?.s || item.image_url;
 
-            return { name, description, price, image };
+            // Extract category - prioritize mlc_name (Middle Level Category) for Fruit/Veg split
+            // fallbacks: tlc_name, category_name
+            const category = item.category?.mlc_name || item.category?.tlc_name || item.category_name || pd?.category?.mlc_name || pd?.category?.tlc_name || '';
+
+            return { name, description, price, image, category };
         };
 
         // Aggressive recursive search for products
@@ -98,7 +102,7 @@ export async function POST(req: NextRequest) {
         // Use a map to deduplicate by name
         const uniqueProducts = new Map();
 
-        // Single product fallback if recursive search missed it (though unlikely now)
+        // Single product fallback if recursive search missed it
         if (pageProps?.productDetails) {
             const pd = pageProps.productDetails;
             let item = pd.product || pd.product_details?.product;

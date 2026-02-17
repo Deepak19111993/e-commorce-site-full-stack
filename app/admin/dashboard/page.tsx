@@ -39,11 +39,12 @@ export default function AdminDashboard() {
     const [ordersList, setOrdersList] = useState<any[]>([]);
 
     // Form States
-    const [newProduct, setNewProduct] = useState({ name: '', description: '', price: '', stock: '', image: '' });
+    const [newProduct, setNewProduct] = useState({ name: '', description: '', category: '', price: '', stock: '', image: '' });
     const [editingProduct, setEditingProduct] = useState<any>(null);
     const [newUser, setNewUser] = useState({ name: '', email: '', password: '', role: 'user' });
     const [importUrl, setImportUrl] = useState('');
     const [isImporting, setIsImporting] = useState(false);
+    const [selectedCategory, setSelectedCategory] = useState("All");
 
     // Delete Confirmation State
     const [deleteConfirmation, setDeleteConfirmation] = useState<{ isOpen: boolean, type: 'user' | 'product' | null, id: string | number | null }>({
@@ -150,7 +151,8 @@ export default function AdminDashboard() {
                     fetchProducts();
                     toast.success('Product deleted successfully');
                 } else {
-                    toast.error('Failed to delete product');
+                    const data = await res.json();
+                    toast.error(data.error || 'Failed to delete product');
                 }
             } catch (e) {
                 toast.error('Error deleting product');
@@ -197,7 +199,7 @@ export default function AdminDashboard() {
                 body: JSON.stringify(editingProduct || newProduct)
             });
             if (res.ok) {
-                setNewProduct({ name: '', description: '', price: '', stock: '', image: '' });
+                setNewProduct({ name: '', description: '', category: '', price: '', stock: '', image: '' });
                 setEditingProduct(null);
                 fetchProducts();
                 toast.success(`Product ${editingProduct ? 'updated' : 'created'} successfully!`);
@@ -214,6 +216,7 @@ export default function AdminDashboard() {
         setNewProduct({
             name: product.name,
             description: product.description,
+            category: product.category || '',
             price: product.price,
             stock: product.stock,
             image: product.image || ''
@@ -222,7 +225,7 @@ export default function AdminDashboard() {
 
     const handleCancelEdit = () => {
         setEditingProduct(null);
-        setNewProduct({ name: '', description: '', price: '', stock: '', image: '' });
+        setNewProduct({ name: '', description: '', category: '', price: '', stock: '', image: '' });
     };
 
     const handleDeleteProduct = (id: number) => {
@@ -513,6 +516,17 @@ export default function AdminDashboard() {
                                         }
                                     />
                                 </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                                    <Input
+                                        placeholder="Category (e.g. Fruits & Vegetables)"
+                                        value={editingProduct ? editingProduct.category : newProduct.category}
+                                        onChange={(e) => editingProduct
+                                            ? setEditingProduct({ ...editingProduct, category: e.target.value })
+                                            : setNewProduct({ ...newProduct, category: e.target.value })
+                                        }
+                                    />
+                                </div>
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-1">Price</label>
@@ -584,7 +598,7 @@ export default function AdminDashboard() {
                                         <Button
                                             onClick={() => {
                                                 setEditingProduct(null);
-                                                setNewProduct({ name: '', description: '', price: '', stock: '', image: '' });
+                                                setNewProduct({ name: '', description: '', category: '', price: '', stock: '', image: '' });
                                             }}
                                             variant="outline"
                                             className="h-9 sm:h-10 text-sm sm:text-base"
@@ -598,51 +612,72 @@ export default function AdminDashboard() {
                     </div>
 
                     {/* Right Column: Products List */}
-                    <div className="md:col-span-2">
+                    <div className="md:col-span-2 space-y-4">
+                        {/* Category Filter for Admin */}
+                        <div className="flex overflow-x-auto pb-2 gap-2 no-scrollbar">
+                            {["All", ...Array.from(new Set(productsList.map(p => p.category).filter(Boolean)))].map((cat: any) => (
+                                <button
+                                    key={cat}
+                                    onClick={() => setSelectedCategory(cat)}
+                                    className={`whitespace-nowrap px-3 py-1 rounded-full text-xs font-medium transition-all border
+                                        ${selectedCategory === cat
+                                            ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
+                                            : 'bg-white text-gray-600 border-gray-200 hover:border-blue-300 hover:text-blue-600'}`}
+                                >
+                                    {cat}
+                                </button>
+                            ))}
+                        </div>
                         <div className="bg-white shadow rounded-lg overflow-hidden overflow-x-auto">
                             <table className="min-w-full divide-y divide-gray-200">
                                 <thead className="bg-gray-50">
                                     <tr>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Product</th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Category</th>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Price</th>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Stock</th>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody className="bg-white divide-y divide-gray-200">
-                                    {productsList.map((p) => (
-                                        <tr key={p.id}>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                                {p.name}
-                                                <p className="text-xs text-gray-500 font-normal truncate max-w-xs">{p.description}</p>
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${p.price}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{p.stock}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                                                <Button
-                                                    onClick={() => handleEditProduct(p)}
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    className="text-blue-600 hover:text-blue-900 hover:bg-blue-50"
-                                                    title="Edit Product"
-                                                >
-                                                    <Edit className="h-4 w-4" />
-                                                </Button>
-                                                <Button
-                                                    onClick={() => handleDeleteProduct(p.id)}
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    className="text-red-600 hover:text-red-900 hover:bg-red-50"
-                                                    title="Delete Product"
-                                                >
-                                                    <Trash2 className="h-4 w-4" />
-                                                </Button>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                    {productsList.length === 0 && (
+                                    {productsList
+                                        .filter(p => selectedCategory === "All" || p.category === selectedCategory)
+                                        .map((p) => (
+                                            <tr key={p.id}>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                    {p.name}
+                                                    <p className="text-xs text-gray-500 font-normal truncate max-w-xs">{p.description}</p>
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 italic">
+                                                    {p.category || 'Uncategorized'}
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${p.price}</td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{p.stock}</td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                                                    <Button
+                                                        onClick={() => handleEditProduct(p)}
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        className="text-blue-600 hover:text-blue-900 hover:bg-blue-50"
+                                                        title="Edit Product"
+                                                    >
+                                                        <Edit className="h-4 w-4" />
+                                                    </Button>
+                                                    <Button
+                                                        onClick={() => handleDeleteProduct(p.id)}
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        className="text-red-600 hover:text-red-900 hover:bg-red-50"
+                                                        title="Delete Product"
+                                                    >
+                                                        <Trash2 className="h-4 w-4" />
+                                                    </Button>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    {productsList.filter(p => selectedCategory === "All" || p.category === selectedCategory).length === 0 && (
                                         <tr>
-                                            <td colSpan={4} className="px-6 py-4 text-center text-sm text-gray-500">No products found</td>
+                                            <td colSpan={5} className="px-6 py-4 text-center text-sm text-gray-500">No products found in this category</td>
                                         </tr>
                                     )}
                                 </tbody>

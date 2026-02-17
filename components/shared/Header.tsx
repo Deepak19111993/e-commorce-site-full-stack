@@ -46,7 +46,7 @@ export default function Header() {
                 <Link href="/" onClick={() => setIsOpen(false)} className={linkClass('/')}>Products</Link>
             )}
             {user?.role !== 'admin' && (
-                <Link href="/cart" onClick={() => setIsOpen(false)} className={linkClass('/cart')}>Cart</Link>
+                <Link href="/cart" onClick={() => setIsOpen(false)} className={linkClass('/cart')}>Basket</Link>
             )}
             {user?.role !== 'admin' && (
                 <Link href="/orders" onClick={() => setIsOpen(false)} className={linkClass('/orders')}>Orders</Link>
