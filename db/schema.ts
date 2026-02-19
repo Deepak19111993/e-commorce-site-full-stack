@@ -1,7 +1,16 @@
 
 import { pgTable, serial, text, integer, timestamp, boolean, decimal, uuid } from 'drizzle-orm/pg-core';
 
-export const users = pgTable('users', {
+export const storeUsers = pgTable('store_users', {
+    id: uuid('id').primaryKey().defaultRandom(),
+    name: text('name'),
+    email: text('email').notNull().unique(),
+    password: text('password').notNull(),
+    role: text('role').default('user'),
+    createdAt: timestamp('created_at').defaultNow(),
+});
+
+export const parkingUsers = pgTable('parking_users', {
     id: uuid('id').primaryKey().defaultRandom(),
     name: text('name'),
     email: text('email').notNull().unique(),
@@ -23,7 +32,7 @@ export const products = pgTable('products', {
 
 export const orders = pgTable('orders', {
     id: serial('id').primaryKey(),
-    userId: uuid('user_id').references(() => users.id),
+    userId: uuid('user_id').references(() => storeUsers.id),
     status: text('status').default('processing'),
     paymentMethod: text('payment_method').default('cod'),
     total: decimal('total', { precision: 10, scale: 2 }).notNull().default('0'),
@@ -40,9 +49,9 @@ export const orderItems = pgTable('order_items', {
 import { relations } from 'drizzle-orm';
 
 export const ordersRelations = relations(orders, ({ one, many }) => ({
-    user: one(users, {
+    user: one(storeUsers, {
         fields: [orders.userId],
-        references: [users.id],
+        references: [storeUsers.id],
     }),
     items: many(orderItems),
 }));
@@ -60,4 +69,51 @@ export const orderItemsRelations = relations(orderItems, ({ one }) => ({
 
 export const productsRelations = relations(products, ({ many }) => ({
     orderItems: many(orderItems),
+}));
+
+export const parkingBookings = pgTable('parking_bookings', {
+    id: serial('id').primaryKey(),
+    userId: uuid('user_id').references(() => parkingUsers.id).notNull(),
+    slotId: integer('slot_id').notNull(),
+    startTime: timestamp('start_time').notNull(),
+    endTime: timestamp('end_time').notNull(),
+    paymentStatus: text('payment_status').default('pending'),
+    createdAt: timestamp('created_at').defaultNow(),
+});
+
+export const transactions = pgTable('transactions', {
+    id: serial('id').primaryKey(),
+    userId: uuid('user_id').references(() => parkingUsers.id).notNull(),
+    bookingId: integer('booking_id').references(() => parkingBookings.id),
+    amount: decimal('amount', { precision: 10, scale: 2 }).notNull().default('20.00'),
+    status: text('status').default('pending'), // pending, completed, failed
+    createdAt: timestamp('created_at').defaultNow(),
+});
+
+export const parkingBookingsRelations = relations(parkingBookings, ({ one, many }) => ({
+    user: one(parkingUsers, {
+        fields: [parkingBookings.userId],
+        references: [parkingUsers.id],
+    }),
+    transactions: many(transactions),
+}));
+
+export const transactionsRelations = relations(transactions, ({ one }) => ({
+    user: one(parkingUsers, {
+        fields: [transactions.userId],
+        references: [parkingUsers.id],
+    }),
+    booking: one(parkingBookings, {
+        fields: [transactions.bookingId],
+        references: [parkingBookings.id],
+    }),
+}));
+
+export const storeUsersRelations = relations(storeUsers, ({ many }) => ({
+    orders: many(orders),
+}));
+
+export const parkingUsersRelations = relations(parkingUsers, ({ many }) => ({
+    parkingBookings: many(parkingBookings),
+    transactions: many(transactions),
 }));

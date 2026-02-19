@@ -103,7 +103,7 @@ export default function UserDashboard() {
     if (!user) return <FullScreenLoader />;
 
     return (
-        <div className="">
+        <div className="pt-6">
             <div className="flex justify-between items-center mb-6">
                 <h1 className="text-xl sm:text-2xl font-bold">User Dashboard</h1>
             </div>

@@ -292,12 +292,13 @@ export default function ProductsAndOrders() {
                             <p className="text-gray-400 text-sm">Try adjusting your filters</p>
                         </div>
                     ) : (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
                             {products.map((p) => {
                                 const isInCart = cart.some((item) => item.id === p.id);
+                                const isOutOfStock = p.stock <= 0;
                                 return (
-                                    <Card key={p.id} className="overflow-hidden">
-                                        <div className="h-48 bg-gray-200 flex items-center justify-center text-gray-500 relative">
+                                    <Card key={p.id} className={`overflow-hidden flex flex-col h-full ${isOutOfStock ? 'opacity-60 grayscale pointer-events-none' : ''}`}>
+                                        <div className="h-40 sm:h-48 bg-gray-200 flex items-center justify-center text-gray-500 relative">
                                             {p.image ? (
                                                 <Image
                                                     src={p.image}
@@ -315,24 +316,26 @@ export default function ProductsAndOrders() {
                                                 </div>
                                             )}
                                         </div>
-                                        <CardHeader className="p-4">
-                                            <CardTitle className="text-lg">{p.name}</CardTitle>
+                                        <CardHeader className="p-2 sm:p-4">
+                                            <CardTitle className="text-sm sm:text-lg leading-[120%]">{p.name}</CardTitle>
                                         </CardHeader>
-                                        <CardContent className="p-4 pt-0">
-                                            <p className="text-gray-600 text-sm mb-2 line-clamp-2">{p.description || "No description provided."}</p>
-                                            <div className="flex justify-between items-center font-bold mb-2">
+                                        <CardContent className="p-2 sm:p-4 pt-0 flex flex-col flex-1">
+                                            <p className="text-gray-600 text-xs sm:text-sm mb-2 line-clamp-2 leading-[120%]">{p.description || "No description provided."}</p>
+                                            <div className="flex justify-between items-center font-bold mb-2 text-sm sm:text-base">
                                                 <span>${p.price}</span>
-                                                <span className="text-xs text-gray-500 font-normal">{p.stock} in stock</span>
+                                                <span className="text-[10px] sm:text-xs text-gray-500 font-normal">{p.stock} in stock</span>
                                             </div>
                                             <button
                                                 onClick={() => addToCart(p)}
-                                                disabled={isInCart}
-                                                className={`w-full py-2 sm:py-2.5 rounded-lg font-semibold transition-all duration-200 shadow-sm active:scale-[0.98] text-sm sm:text-base
-                                                            ${isInCart
-                                                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed border'
-                                                        : 'bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white shadow-indigo-200 hover:shadow-lg hover:shadow-indigo-300'}`}
+                                                disabled={isInCart || isOutOfStock}
+                                                className={`w-full py-2 sm:py-2.5 rounded-lg font-semibold transition-all duration-200 shadow-sm active:scale-[0.98] text-xs sm:text-base mt-auto
+                                                            ${isOutOfStock
+                                                        ? 'bg-gray-200 text-gray-500 cursor-not-allowed border'
+                                                        : isInCart
+                                                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed border'
+                                                            : 'bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white shadow-indigo-200 hover:shadow-lg hover:shadow-indigo-300'}`}
                                             >
-                                                {isInCart ? "Already in Basket" : "Add to Basket"}
+                                                {isOutOfStock ? "Out of Stock" : isInCart ? "Already in Basket" : "Add to Basket"}
                                             </button>
                                         </CardContent>
                                     </Card>

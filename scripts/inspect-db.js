@@ -1,3 +1,4 @@
+/* eslint-disable */
 const postgres = require('postgres');
 require('dotenv').config();
 
@@ -7,24 +8,11 @@ const run = async () => {
     }
     const sql = postgres(process.env.DATABASE_URL);
 
-    console.log('Checking columns for users table...');
     try {
-        const columns = await sql`
-            SELECT column_name, data_type 
-            FROM information_schema.columns 
-            WHERE table_name = 'users';
-        `;
-        console.log('Columns in users table:', columns);
-
-        const tables = await sql`
-            SELECT table_name 
-            FROM information_schema.tables 
-            WHERE table_schema = 'public';
-        `;
-        console.log('Tables in public schema:', tables.map(t => t.table_name));
-
+        const bookings = await sql`SELECT * FROM parking_bookings ORDER BY start_time`;
+        console.log('Current Bookings:', bookings);
     } catch (e) {
-        console.error('Error checking schema:', e);
+        console.error('Error:', e);
     } finally {
         await sql.end();
     }

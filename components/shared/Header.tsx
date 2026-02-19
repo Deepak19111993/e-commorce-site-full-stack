@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useRouter, usePathname } from "next/navigation";
-import { ShoppingBag, Menu } from "lucide-react";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import { ShoppingBag, Menu, Car } from "lucide-react";
 import {
     Sheet,
     SheetContent,
@@ -18,6 +18,10 @@ export default function Header() {
     const [isOpen, setIsOpen] = useState(false);
     const router = useRouter();
     const pathname = usePathname();
+    const searchParams = useSearchParams();
+
+    // Determine context based on path or query param (for auth pages)
+    const context = pathname?.startsWith('/parking') || searchParams.get('type') === 'parking' ? 'parking' : 'store';
 
     useEffect(() => {
         const storedUser = localStorage.getItem('user');
@@ -40,32 +44,52 @@ export default function Header() {
         router.push('/login');
     };
 
-    const NavLinks = () => (
-        <>
-            {user?.role !== 'admin' && (
-                <Link href="/" onClick={() => setIsOpen(false)} className={linkClass('/')}>Products</Link>
-            )}
-            {user?.role !== 'admin' && (
-                <Link href="/cart" onClick={() => setIsOpen(false)} className={linkClass('/cart')}>Basket</Link>
-            )}
-            {user?.role !== 'admin' && (
-                <Link href="/orders" onClick={() => setIsOpen(false)} className={linkClass('/orders')}>Orders</Link>
-            )}
-            <Link href="/profile" onClick={() => setIsOpen(false)} className={linkClass('/profile')}>Profile</Link>
-            {user?.role === 'admin' && (
-                <Link href="/admin/dashboard" onClick={() => setIsOpen(false)} className={linkClass('/admin/dashboard')}>Admin</Link>
-            )}
-        </>
-    );
+    const NavLinks = () => {
+        // If in parking context, only show Parking and Profile (and maybe Store link to switch back?)
+        // User requested: "no need to menu item like: products, basket, orders in header"
+        if (context === 'parking') {
+            return (
+                <>
+                    <Link href="/parking" onClick={() => setIsOpen(false)} className={linkClass('/parking')}>Parking</Link>
+                    <Link href="/parking/transactions" onClick={() => setIsOpen(false)} className={linkClass('/parking/transactions')}>Transactions</Link>
+                    <Link href="/parking/profile" onClick={() => setIsOpen(false)} className={linkClass('/parking/profile')}>Profile</Link>
+                    {user?.role === 'admin' && (
+                        <Link href="/admin/dashboard" onClick={() => setIsOpen(false)} className={linkClass('/admin/dashboard')}>Admin</Link>
+                    )}
+                </>
+            );
+        }
+
+        return (
+            <>
+                {user?.role !== 'admin' && (
+                    <Link href="/" onClick={() => setIsOpen(false)} className={linkClass('/')}>Products</Link>
+                )}
+                {user?.role !== 'admin' && (
+                    <Link href="/cart" onClick={() => setIsOpen(false)} className={linkClass('/cart')}>Basket</Link>
+                )}
+                {user?.role !== 'admin' && (
+                    <Link href="/orders" onClick={() => setIsOpen(false)} className={linkClass('/orders')}>Orders</Link>
+                )}
+                {/* User requested to remove Parking link for store user */}
+                <Link href="/profile" onClick={() => setIsOpen(false)} className={linkClass('/profile')}>Profile</Link>
+                {user?.role === 'admin' && (
+                    <Link href="/admin/dashboard" onClick={() => setIsOpen(false)} className={linkClass('/admin/dashboard')}>Admin</Link>
+                )}
+            </>
+        );
+    };
 
     return (
-        <header className="bg-white/80 backdrop-blur-md shadow-sm border-b mb-6 sticky top-0 z-50">
+        <header className="bg-white/80 backdrop-blur-md shadow-sm border-b sticky top-0 z-50">
             <div className="container mx-auto px-4 h-16 flex justify-between items-center">
-                <Link href={user?.role === 'admin' ? '/admin/dashboard' : '/'} className="flex items-center gap-2 group shrink-0">
-                    <div className="bg-gradient-to-br from-indigo-600 to-violet-600 p-2 rounded-xl text-white shadow-indigo-100 shadow-lg transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3">
-                        <ShoppingBag className="h-5 w-5" />
+                <Link href={user?.role === 'admin' ? '/admin/dashboard' : (context === 'parking' ? '/parking' : '/')} className="flex items-center gap-2 group shrink-0">
+                    <div className={`p-2 rounded-xl text-white shadow-lg transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3 ${context === 'parking' ? 'bg-gradient-to-br from-emerald-600 to-teal-600 shadow-emerald-100' : 'bg-gradient-to-br from-indigo-600 to-violet-600 shadow-indigo-100'}`}>
+                        {context === 'parking' ? <Car className="h-5 w-5" /> : <ShoppingBag className="h-5 w-5" />}
                     </div>
-                    <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600 group-hover:to-indigo-600 transition-all">Store</span>
+                    <span className={`text-xl font-bold bg-clip-text text-transparent transition-all ${context === 'parking' ? 'bg-gradient-to-r from-gray-900 to-emerald-600 group-hover:to-emerald-500' : 'bg-gradient-to-r from-gray-900 to-gray-600 group-hover:to-indigo-600'}`}>
+                        {context === 'parking' ? 'Smart Parking' : 'Store'}
+                    </span>
                 </Link>
 
                 {/* Desktop Navigation */}
@@ -85,14 +109,14 @@ export default function Header() {
                     ) : (
                         <div className="flex items-center gap-6">
                             <Link
-                                href="/login"
-                                className="bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white px-6 py-2 rounded-full font-semibold shadow-md hover:shadow-lg transition-all active:scale-[0.98]"
+                                href={`/login${context === 'parking' ? '?type=parking' : ''}`}
+                                className={`px-6 py-2 rounded-full font-semibold shadow-md hover:shadow-lg transition-all active:scale-[0.98] text-white ${context === 'parking' ? 'bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700' : 'bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700'}`}
                             >
                                 Login
                             </Link>
                             <Link
-                                href="/signup"
-                                className="text-indigo-600 hover:text-indigo-700 font-semibold"
+                                href={`/signup${context === 'parking' ? '?type=parking' : ''}`}
+                                className={`font-semibold ${context === 'parking' ? 'text-emerald-600 hover:text-emerald-700' : 'text-indigo-600 hover:text-indigo-700'}`}
                             >
                                 Signup
                             </Link>
@@ -104,8 +128,8 @@ export default function Header() {
                 <div className="md:hidden flex items-center gap-4">
                     {!checkingUser && !user && (
                         <Link
-                            href="/login"
-                            className="text-indigo-600 font-bold text-sm"
+                            href={`/login${context === 'parking' ? '?type=parking' : ''}`}
+                            className={`font-bold text-sm ${context === 'parking' ? 'text-emerald-600' : 'text-indigo-600'}`}
                         >
                             Login
                         </Link>
@@ -120,10 +144,12 @@ export default function Header() {
                             <SheetHeader className="text-left border-b pb-3 mb-2 shrink-0">
                                 <SheetTitle className="text-lg font-bold">
                                     <div className="flex items-center gap-2">
-                                        <div className="bg-gradient-to-br from-indigo-600 to-violet-600 p-1.5 rounded-lg text-white shadow-md">
-                                            <ShoppingBag size={14} />
+                                        <div className={`p-1.5 rounded-lg text-white shadow-md ${context === 'parking' ? 'bg-gradient-to-br from-emerald-600 to-teal-600' : 'bg-gradient-to-br from-indigo-600 to-violet-600'}`}>
+                                            {context === 'parking' ? <Car size={14} /> : <ShoppingBag size={14} />}
                                         </div>
-                                        <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600">Store</span>
+                                        <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600">
+                                            {context === 'parking' ? 'Smart Parking' : 'Store'}
+                                        </span>
                                     </div>
                                 </SheetTitle>
                             </SheetHeader>
@@ -141,8 +167,14 @@ export default function Header() {
                                         </div>
                                     ) : (
                                         <div className="space-y-1">
-                                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-tighter mb-1 px-2">Shop</p>
-                                            <Link href="/" onClick={() => setIsOpen(false)} className={linkClass('/')}>Browse Products</Link>
+                                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-tighter mb-1 px-2">
+                                                {context === 'parking' ? 'Menu' : 'Shop'}
+                                            </p>
+                                            {context === 'parking' ? (
+                                                <Link href="/parking" onClick={() => setIsOpen(false)} className={linkClass('/parking')}>Book Parking</Link>
+                                            ) : (
+                                                <Link href="/" onClick={() => setIsOpen(false)} className={linkClass('/')}>Browse Products</Link>
+                                            )}
                                         </div>
                                     )}
                                 </div>
@@ -163,16 +195,16 @@ export default function Header() {
                                     ) : (
                                         <div className="flex gap-2">
                                             <Link
-                                                href="/login"
+                                                href={`/login${context === 'parking' ? '?type=parking' : ''}`}
                                                 onClick={() => setIsOpen(false)}
-                                                className="flex-1 bg-gradient-to-r from-indigo-600 to-violet-600 text-white py-2.5 rounded-lg font-bold text-center shadow-md shadow-indigo-100 active:scale-[0.98] transition-all hover:opacity-90 text-sm"
+                                                className={`flex-1 text-white py-2.5 rounded-lg font-bold text-center shadow-md active:scale-[0.98] transition-all hover:opacity-90 text-sm ${context === 'parking' ? 'bg-gradient-to-r from-emerald-600 to-teal-600 shadow-emerald-100' : 'bg-gradient-to-r from-indigo-600 to-violet-600 shadow-indigo-100'}`}
                                             >
                                                 Login
                                             </Link>
                                             <Link
-                                                href="/signup"
+                                                href={`/signup${context === 'parking' ? '?type=parking' : ''}`}
                                                 onClick={() => setIsOpen(false)}
-                                                className="flex-1 border-2 border-indigo-600 text-indigo-600 py-2.5 rounded-lg font-bold text-center active:scale-[0.98] transition-all hover:bg-indigo-50 text-sm"
+                                                className={`flex-1 border-2 py-2.5 rounded-lg font-bold text-center active:scale-[0.98] transition-all text-sm ${context === 'parking' ? 'border-emerald-600 text-emerald-600 hover:bg-emerald-50' : 'border-indigo-600 text-indigo-600 hover:bg-indigo-50'}`}
                                             >
                                                 Sign Up
                                             </Link>

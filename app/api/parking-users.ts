@@ -1,7 +1,7 @@
 
 import { Hono } from 'hono';
 import { db } from '@/db';
-import { storeUsers } from '@/db/schema';
+import { parkingUsers } from '@/db/schema';
 import { eq } from 'drizzle-orm';
 
 const app = new Hono();
@@ -11,7 +11,7 @@ app.get('/', async (c) => {
     if (role !== 'admin') {
         return c.json({ error: 'Forbidden' }, 403);
     }
-    const allUsers = await db.select().from(storeUsers);
+    const allUsers = await db.select().from(parkingUsers);
     return c.json(allUsers);
 });
 
@@ -21,15 +21,37 @@ app.post('/', async (c) => {
         return c.json({ error: 'Forbidden' }, 403);
     }
     const body = await c.req.json();
-    const newUser = await db.insert(storeUsers).values(body).returning();
+    const newUser = await db.insert(parkingUsers).values(body).returning();
     return c.json(newUser[0], 201);
 });
 
 app.get('/:id', async (c) => {
     const id = c.req.param('id');
-    const user = await db.select().from(storeUsers).where(eq(storeUsers.id, id));
+    const user = await db.select().from(parkingUsers).where(eq(parkingUsers.id, id));
     if (user.length === 0) return c.json({ error: 'User not found' }, 404);
     return c.json(user[0]);
+});
+
+app.put('/:id', async (c) => {
+    const id = c.req.param('id');
+    const requestorId = c.req.header('X-User-Id');
+    const body = await c.req.json();
+
+    if (requestorId !== id) {
+        return c.json({ error: 'Forbidden' }, 403);
+    }
+
+    try {
+        const updatedUser = await db.update(parkingUsers)
+            .set(body)
+            .where(eq(parkingUsers.id, id))
+            .returning();
+
+        if (updatedUser.length === 0) return c.json({ error: 'User not found' }, 404);
+        return c.json(updatedUser[0]);
+    } catch (e) {
+        return c.json({ error: 'Failed to update user' }, 500);
+    }
 });
 
 app.delete('/:id', async (c) => {
@@ -47,16 +69,7 @@ app.delete('/:id', async (c) => {
     }
 
     try {
-        // Delete dependencies first if necessary (e.g. orders)
-        // For now, relying on cascade or manual deletion if foreign keys exist
-        // But better to be safe given previous schema issues
-        // We'll just try deleting the user. 
-        // If dependent tables exist without ON DELETE CASCADE, this might fail.
-        // Given reset-db.js dropped tables with CASCADE, we might need to assume 
-        // standard behavior or specific cleanup.
-        // Let's assume standard delete for now.
-
-        const deleted = await db.delete(storeUsers).where(eq(storeUsers.id, id)).returning();
+        const deleted = await db.delete(parkingUsers).where(eq(parkingUsers.id, id)).returning();
         if (deleted.length === 0) return c.json({ error: 'User not found' }, 404);
 
         return c.json({ message: 'User deleted successfully' });

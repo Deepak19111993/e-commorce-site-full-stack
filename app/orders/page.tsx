@@ -115,7 +115,7 @@ export default function OrdersPage() {
     if (loading) return <FullScreenLoader />;
 
     return (
-        <div className="space-y-6 max-w-5xl w-full mx-auto">
+        <div className="space-y-6 max-w-5xl w-full mx-auto pt-6">
             <h1 className="text-2xl sm:text-3xl font-bold mb-6">Your Orders</h1>
             {orders.length === 0 ? (
                 <Card>

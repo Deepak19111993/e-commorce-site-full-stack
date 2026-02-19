@@ -1,7 +1,7 @@
 
 import { Hono } from 'hono';
 import { db } from '@/db';
-import { orders, orderItems } from '@/db/schema';
+import { orders, orderItems, products } from '@/db/schema';
 import { eq } from 'drizzle-orm';
 
 const app = new Hono();
@@ -40,29 +40,61 @@ app.get('/', async (c) => {
 app.post('/', async (c) => {
     try {
         const body = await c.req.json();
-        // Simple order creation logic (transaction handling can be added later)
-        const newOrder = await db.insert(orders).values({
-            userId: body.userId,
-            total: body.total,
-            status: 'processing',
-            paymentMethod: body.paymentMethod || 'cod'
-        }).returning();
+        const { userId, total, items, paymentMethod } = body;
 
-        // Insert items if provided
-        if (body.items && Array.isArray(body.items)) {
-            const items = body.items.map((item: any) => ({
+        if (!items || !Array.isArray(items) || items.length === 0) {
+            return c.json({ error: "No items in order" }, 400);
+        }
+
+        const result = await db.transaction(async (tx) => {
+            // 1. Validate stock and deduct for all items
+            for (const item of items) {
+                const product = await tx.query.products.findFirst({
+                    where: eq(products.id, item.productId)
+                });
+
+                if (!product) {
+                    throw new Error(`Product not found: ${item.productId}`);
+                }
+
+                if (product.stock < item.quantity) {
+                    throw new Error(`Insufficient stock for ${product.name}`);
+                }
+
+                // Deduct stock
+                await tx.update(products)
+                    .set({ stock: product.stock - item.quantity })
+                    .where(eq(products.id, item.productId));
+            }
+
+            // 2. Create Order
+            const newOrder = await tx.insert(orders).values({
+                userId,
+                total,
+                status: 'processing',
+                paymentMethod: paymentMethod || 'cod'
+            }).returning();
+
+            // 3. Create Order Items
+            const orderItemsData = items.map((item: any) => ({
                 orderId: newOrder[0].id,
                 productId: item.productId,
                 quantity: item.quantity,
                 price: item.price
             }));
-            await db.insert(orderItems).values(items);
-        }
+            await tx.insert(orderItems).values(orderItemsData);
 
-        return c.json(newOrder[0], 201);
-    } catch (error) {
+            return newOrder[0];
+        });
+
+        return c.json(result, 201);
+    } catch (error: any) {
         console.error("Error creating order:", error);
-        return c.json({ error: "Failed to create order" }, 500);
+        // Check for specific error message to return 400 for stock issues
+        if (error.message.includes('Insufficient stock')) {
+            return c.json({ error: error.message }, 400);
+        }
+        return c.json({ error: error.message || "Failed to create order" }, 500);
     }
 });
 

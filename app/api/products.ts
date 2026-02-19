@@ -2,7 +2,7 @@
 import { Hono } from 'hono';
 import { db } from '@/db';
 import { products } from '@/db/schema';
-import { eq, gte, lte, gt, and } from 'drizzle-orm';
+import { eq, gte, lte, gt, and, asc } from 'drizzle-orm';
 
 const app = new Hono();
 
@@ -35,9 +35,9 @@ app.get('/', async (c) => {
     // Build query with filters
     let allProducts;
     if (conditions.length > 0) {
-        allProducts = await db.select().from(products).where(and(...conditions));
+        allProducts = await db.select().from(products).where(and(...conditions)).orderBy(asc(products.id));
     } else {
-        allProducts = await db.select().from(products);
+        allProducts = await db.select().from(products).orderBy(asc(products.id));
     }
 
     return c.json(allProducts);
@@ -48,9 +48,27 @@ app.post('/', async (c) => {
     if (!userId) {
         return c.json({ error: 'Unauthorized' }, 401);
     }
-    const body = await c.req.json();
-    const newProduct = await db.insert(products).values(body).returning();
-    return c.json(newProduct[0], 201);
+    try {
+        const body = await c.req.json();
+
+        if (!body.name || !body.price) {
+            return c.json({ error: 'Name and Price are required' }, 400);
+        }
+
+        const productData = {
+            name: body.name,
+            description: body.description,
+            category: body.category,
+            price: String(body.price),
+            stock: Number(body.stock),
+            image: body.image
+        };
+        const newProduct = await db.insert(products).values(productData).returning();
+        return c.json(newProduct[0], 201);
+    } catch (error) {
+        console.error('Error creating product:', error);
+        return c.json({ error: 'Failed to create product', details: String(error) }, 500);
+    }
 });
 
 app.get('/:id', async (c) => {
@@ -65,11 +83,24 @@ app.put('/:id', async (c) => {
     const userId = c.req.header('X-User-Id');
     if (!userId) return c.json({ error: 'Unauthorized' }, 401);
 
-    const body = await c.req.json();
-    const updatedProduct = await db.update(products).set(body).where(eq(products.id, id)).returning();
+    try {
+        const body = await c.req.json();
+        const productData = {
+            name: body.name,
+            description: body.description,
+            category: body.category,
+            price: String(body.price),
+            stock: Number(body.stock),
+            image: body.image
+        };
+        const updatedProduct = await db.update(products).set(productData).where(eq(products.id, id)).returning();
 
-    if (updatedProduct.length === 0) return c.json({ error: 'Product not found' }, 404);
-    return c.json(updatedProduct[0]);
+        if (updatedProduct.length === 0) return c.json({ error: 'Product not found' }, 404);
+        return c.json(updatedProduct[0]);
+    } catch (error) {
+        console.error('Error updating product:', error);
+        return c.json({ error: 'Failed to update product', details: String(error) }, 500);
+    }
 });
 
 app.delete('/:id', async (c) => {

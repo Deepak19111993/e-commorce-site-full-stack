@@ -126,7 +126,7 @@ export default function CartPage() {
     }
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-6 pt-6">
             <h1 className="text-2xl sm:text-3xl font-bold">Shopping Basket</h1>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 {/* Cart Items - Left Column */}
