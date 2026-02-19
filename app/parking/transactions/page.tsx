@@ -6,6 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { format } from "date-fns";
 import { ArrowLeft, Receipt, CheckCircle, Clock, XCircle, FileText } from 'lucide-react';
 import Link from 'next/link';
+import { motion } from 'framer-motion';
+import { FullScreenLoader } from "@/components/ui/loader";
 
 interface Transaction {
     id: number;
@@ -26,7 +28,12 @@ export default function TransactionsPage() {
     useEffect(() => {
         const storedUser = localStorage.getItem('user');
         if (storedUser) {
-            setUser(JSON.parse(storedUser));
+            const parsedUser = JSON.parse(storedUser);
+            if (parsedUser.role === 'admin') {
+                router.push('/parking/admin/dashboard');
+                return;
+            }
+            setUser(parsedUser);
         } else {
             router.push('/login?type=parking');
         }
@@ -69,12 +76,32 @@ export default function TransactionsPage() {
         }
     };
 
+    const containerVariants = {
+        hidden: { opacity: 0 },
+        show: {
+            opacity: 1,
+            transition: {
+                staggerChildren: 0.1
+            }
+        }
+    };
+
+    const itemVariants = {
+        hidden: { opacity: 0, y: 20 },
+        show: { opacity: 1, y: 0, transition: { duration: 0.4 } }
+    };
+
     if (loading) {
-        return <div className="flex justify-center items-center h-screen">Loading...</div>;
+        return <FullScreenLoader />;
     }
 
     return (
-        <div className="container mx-auto py-8 max-w-4xl">
+        <motion.div
+            initial={{ opacity: 0, scale: 0.98 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.4 }}
+            className="container mx-auto py-8 max-w-4xl"
+        >
             <div className="flex items-center gap-4 mb-8">
                 <Link href="/parking" className="p-2 hover:bg-gray-100 rounded-full transition-colors">
                     <ArrowLeft className="w-6 h-6 text-gray-600" />
@@ -99,9 +126,18 @@ export default function TransactionsPage() {
                             <p>No transactions found.</p>
                         </div>
                     ) : (
-                        <div className="divide-y divide-gray-100">
+                        <motion.div
+                            variants={containerVariants}
+                            initial="hidden"
+                            animate="show"
+                            className="divide-y divide-gray-100"
+                        >
                             {transactions.map((tx) => (
-                                <div key={tx.id} className="p-6 hover:bg-gray-50 transition-colors flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                                <motion.div
+                                    key={tx.id}
+                                    variants={itemVariants}
+                                    className="p-6 hover:bg-gray-50 transition-colors flex flex-col md:flex-row justify-between items-start md:items-center gap-4"
+                                >
                                     <div className="flex items-start gap-4">
                                         <div className="mt-1">
                                             {getStatusIcon(tx.status)}
@@ -130,12 +166,12 @@ export default function TransactionsPage() {
                                             </p>
                                         </div>
                                     )}
-                                </div>
+                                </motion.div>
                             ))}
-                        </div>
+                        </motion.div>
                     )}
                 </CardContent>
             </Card>
-        </div>
+        </motion.div>
     );
 }

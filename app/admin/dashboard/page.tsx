@@ -37,6 +37,7 @@ export default function AdminDashboard() {
     const [usersList, setUsersList] = useState<any[]>([]);
     const [productsList, setProductsList] = useState<any[]>([]);
     const [ordersList, setOrdersList] = useState<any[]>([]);
+    const [parkingBookingsList, setParkingBookingsList] = useState<any[]>([]);
 
     // Form States
     const [newProduct, setNewProduct] = useState({ name: '', description: '', category: '', price: '', stock: '', image: '' });
@@ -81,6 +82,7 @@ export default function AdminDashboard() {
         fetchUsers(parsedUser);
         fetchProducts();
         fetchOrders(parsedUser);
+        fetchParkingBookings(parsedUser);
     }, [router]);
 
     const fetchUsers = async (currentUser: any) => {
@@ -122,6 +124,21 @@ export default function AdminDashboard() {
             setOrdersList(Array.isArray(data) ? data : []);
         } catch (e) {
             console.error('Failed to fetch orders', e);
+        }
+    };
+
+    const fetchParkingBookings = async (currentUser: any) => {
+        try {
+            const res = await fetch('/api/parking/all-bookings', {
+                headers: {
+                    'X-User-Role': currentUser.role,
+                    'X-User-Id': String(currentUser.id)
+                }
+            });
+            const data = await res.json();
+            setParkingBookingsList(Array.isArray(data) ? data : []);
+        } catch (e) {
+            console.error('Failed to fetch parking bookings', e);
         }
     };
 

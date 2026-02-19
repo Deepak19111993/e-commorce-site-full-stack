@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { motion } from 'framer-motion';
 import { FullScreenLoader } from "@/components/ui/loader";
 import {
     AlertDialog,
@@ -53,6 +54,10 @@ export default function ParkingUserDashboard() {
         }
 
         setUser(parsedUser);
+        if (parsedUser.role === 'admin') {
+            router.push('/parking/admin/profile');
+            return;
+        }
         setEditForm({ name: parsedUser.name || '', email: parsedUser.email || '', password: '' });
 
         // Fetch bookings
@@ -134,10 +139,31 @@ export default function ParkingUserDashboard() {
         }
     };
 
+    const containerVariants = {
+        hidden: { opacity: 0 },
+        show: {
+            opacity: 1,
+            transition: {
+                staggerChildren: 0.1,
+                delayChildren: 0.2
+            }
+        }
+    };
+
+    const itemVariants = {
+        hidden: { opacity: 0, y: 20 },
+        show: { opacity: 1, y: 0, transition: { duration: 0.4 } }
+    };
+
     if (!user) return <FullScreenLoader />;
 
     return (
-        <div className="pt-6 container mx-auto sm:px-4 px-0">
+        <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="pt-6 container mx-auto sm:px-4 px-0"
+        >
             <div className="flex justify-between items-center mb-6">
                 <h1 className="text-xl sm:text-2xl font-bold flex items-center gap-2">
                     <Car className="text-emerald-600" />
@@ -202,66 +228,92 @@ export default function ParkingUserDashboard() {
             </div>
 
             {/* My Bookings Section - Specific to Parking Profile */}
-            <div className="mt-8">
-                <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-                    <Clock className="w-5 h-5 text-gray-500" />
-                    Reservation History
-                </h2>
+            {user?.role !== 'admin' && (
+                <div className="mt-8">
+                    <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+                        <Clock className="w-5 h-5 text-gray-500" />
+                        Reservation History
+                    </h2>
 
-                {loadingBookings ? (
-                    <div className="space-y-4">
-                        {[1, 2].map(i => (
-                            <div key={i} className="h-20 bg-gray-100 animate-pulse rounded-lg"></div>
-                        ))}
-                    </div>
-                ) : bookings.length > 0 ? (
-                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                        {bookings.map((booking) => (
-                            <div key={booking.id} className="bg-white p-4 rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
-                                <div className="flex justify-between items-start mb-2">
-                                    <h3 className="font-bold text-gray-800">Slot P-{booking.slotId}</h3>
-                                    <span className="text-xs bg-emerald-100 text-emerald-800 px-2 py-1 rounded-full font-medium">Confirmed</span>
-                                </div>
-                                <div className="space-y-3 text-sm text-gray-600">
-                                    <div className="flex items-start gap-2">
-                                        <div className="grid gap-1">
-                                            <p className="text-xs text-gray-500 font-medium">Check-in</p>
-                                            <div className="flex items-center gap-2 font-medium">
-                                                <Calendar className="w-3.5 h-3.5 text-emerald-600" />
-                                                {format(new Date(booking.startTime), 'MMM dd, yyyy')}
-                                                <Clock className="w-3.5 h-3.5 ml-1 text-emerald-600" />
-                                                {format(new Date(booking.startTime), 'hh:mm a')}
-                                            </div>
-                                        </div>
+                    {loadingBookings ? (
+                        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                            {[1, 2, 3].map(i => (
+                                <div key={i} className="bg-white p-4 rounded-lg border border-gray-100 shadow-sm animate-pulse">
+                                    <div className="flex justify-between items-start mb-4">
+                                        <div className="h-5 bg-gray-200 rounded-md w-24"></div>
+                                        <div className="h-5 bg-gray-100 rounded-full w-16"></div>
                                     </div>
-                                    <div className="flex items-start gap-2">
-                                        <div className="grid gap-1">
-                                            <p className="text-xs text-gray-500 font-medium">Check-out</p>
-                                            <div className="flex items-center gap-2 font-medium">
-                                                <Calendar className="w-3.5 h-3.5 text-emerald-600" />
-                                                {format(new Date(booking.endTime), 'MMM dd, yyyy')}
-                                                <Clock className="w-3.5 h-3.5 ml-1 text-emerald-600" />
-                                                {format(new Date(booking.endTime), 'hh:mm a')}
-                                            </div>
+                                    <div className="space-y-4">
+                                        <div className="space-y-2">
+                                            <div className="h-3 bg-gray-100 rounded-md w-16"></div>
+                                            <div className="h-4 bg-gray-200 rounded-md w-32"></div>
+                                        </div>
+                                        <div className="space-y-2">
+                                            <div className="h-3 bg-gray-100 rounded-md w-16"></div>
+                                            <div className="h-4 bg-gray-200 rounded-md w-32"></div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        ))}
-                    </div>
-                ) : (
-                    <div className="text-center py-8 bg-gray-50 rounded-lg border border-dashed border-gray-200">
-                        <p className="text-gray-500">No parking reservations found.</p>
-                        <Button
-                            variant="link"
-                            className="text-emerald-600 font-semibold mt-2"
-                            onClick={() => router.push('/parking')}
+                            ))}
+                        </div>
+                    ) : bookings.length > 0 ? (
+                        <motion.div
+                            variants={containerVariants}
+                            initial="hidden"
+                            animate="show"
+                            className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
                         >
-                            Book a Spot
-                        </Button>
-                    </div>
-                )}
-            </div>
+                            {bookings.map((booking) => (
+                                <motion.div
+                                    key={booking.id}
+                                    variants={itemVariants}
+                                    className="bg-white p-4 rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition-shadow"
+                                >
+                                    <div className="flex justify-between items-start mb-2">
+                                        <h3 className="font-bold text-gray-800">Slot P-{booking.slotId}</h3>
+                                        <span className="text-xs bg-emerald-100 text-emerald-800 px-2 py-1 rounded-full font-medium">Confirmed</span>
+                                    </div>
+                                    <div className="space-y-3 text-sm text-gray-600">
+                                        <div className="flex items-start gap-2">
+                                            <div className="grid gap-1">
+                                                <p className="text-xs text-gray-500 font-medium">Check-in</p>
+                                                <div className="flex items-center gap-2 font-medium">
+                                                    <Calendar className="w-3.5 h-3.5 text-emerald-600" />
+                                                    {format(new Date(booking.startTime), 'MMM dd, yyyy')}
+                                                    <Clock className="w-3.5 h-3.5 ml-1 text-emerald-600" />
+                                                    {format(new Date(booking.startTime), 'hh:mm a')}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-start gap-2">
+                                            <div className="grid gap-1">
+                                                <p className="text-xs text-gray-500 font-medium">Check-out</p>
+                                                <div className="flex items-center gap-2 font-medium">
+                                                    <Calendar className="w-3.5 h-3.5 text-emerald-600" />
+                                                    {format(new Date(booking.endTime), 'MMM dd, yyyy')}
+                                                    <Clock className="w-3.5 h-3.5 ml-1 text-emerald-600" />
+                                                    {format(new Date(booking.endTime), 'hh:mm a')}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </motion.div>
+                            ))}
+                        </motion.div>
+                    ) : (
+                        <div className="text-center py-8 bg-gray-50 rounded-lg border border-dashed border-gray-200">
+                            <p className="text-gray-500">No parking reservations found.</p>
+                            <Button
+                                variant="link"
+                                className="text-emerald-600 font-semibold mt-2"
+                                onClick={() => router.push('/parking')}
+                            >
+                                Book a Spot
+                            </Button>
+                        </div>
+                    )}
+                </div>
+            )}
 
             {user.role !== 'admin' && (
                 <div className="mt-12 border-t pt-8">
@@ -290,6 +342,6 @@ export default function ParkingUserDashboard() {
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>
-        </div>
+        </motion.div>
     );
 }

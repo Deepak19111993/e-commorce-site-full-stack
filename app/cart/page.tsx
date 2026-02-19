@@ -10,7 +10,26 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Minus, Plus, Trash2 } from "lucide-react";
 
+import { motion } from "framer-motion";
+
 export default function CartPage() {
+    // ... imports
+
+    const containerVariants = {
+        hidden: { opacity: 0 },
+        show: {
+            opacity: 1,
+            transition: {
+                staggerChildren: 0.1
+            }
+        }
+    };
+
+    const itemVariants = {
+        hidden: { opacity: 0, y: 20 },
+        show: { opacity: 1, y: 0, transition: { duration: 0.4 } }
+    };
+
     const [cart, setCart] = useState<any[]>([]);
     const [mounted, setMounted] = useState(false);
     const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
@@ -130,100 +149,107 @@ export default function CartPage() {
             <h1 className="text-2xl sm:text-3xl font-bold">Shopping Basket</h1>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 {/* Cart Items - Left Column */}
-                <div className="md:col-span-2 space-y-4">
+                <motion.div
+                    variants={containerVariants}
+                    initial="hidden"
+                    animate="show"
+                    className="md:col-span-2 space-y-4"
+                >
                     {cart.map((item) => (
-                        <Card key={item.id} className="overflow-hidden border shadow-sm hover:shadow-md transition relative group">
-                            {/* Remove Button - Top Right */}
-                            <button
-                                onClick={() => removeItem(item.id)}
-                                className="absolute top-2 right-2 p-2 rounded-full text-gray-400 hover:text-red-500 hover:bg-red-50 transition opacity-100 sm:opacity-0 sm:group-hover:opacity-100 focus:opacity-100"
-                                title="Remove from cart"
-                            >
-                                <Trash2 size={18} />
-                            </button>
+                        <motion.div key={item.id} variants={itemVariants}>
+                            <Card className="overflow-hidden border shadow-sm hover:shadow-md transition relative group">
+                                {/* Remove Button - Top Right */}
+                                <button
+                                    onClick={() => removeItem(item.id)}
+                                    className="absolute top-2 right-2 p-2 rounded-full text-gray-400 hover:text-red-500 hover:bg-red-50 transition opacity-100 sm:opacity-0 sm:group-hover:opacity-100 focus:opacity-100"
+                                    title="Remove from cart"
+                                >
+                                    <Trash2 size={18} />
+                                </button>
 
-                            <CardContent className="p-3 sm:p-4">
-                                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 sm:items-center">
-                                    {/* Product Image and Main Info Row */}
-                                    <div className="flex gap-3 items-center sm:items-start grow">
-                                        {/* Product Image */}
-                                        <div className="h-20 w-20 sm:h-24 sm:w-24 bg-gray-100 rounded-md flex items-center justify-center text-3xl sm:text-4xl shrink-0 overflow-hidden relative border">
-                                            {item.image ? (
-                                                <Image
-                                                    src={item.image}
-                                                    alt={item.name}
-                                                    fill
-                                                    className="object-cover"
-                                                    sizes="(max-width: 640px) 80px, 96px"
-                                                />
-                                            ) : (
-                                                <span>📦</span>
-                                            )}
+                                <CardContent className="p-3 sm:p-4">
+                                    <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 sm:items-center">
+                                        {/* Product Image and Main Info Row */}
+                                        <div className="flex gap-3 items-center sm:items-start grow">
+                                            {/* Product Image */}
+                                            <div className="h-20 w-20 sm:h-24 sm:w-24 bg-gray-100 rounded-md flex items-center justify-center text-3xl sm:text-4xl shrink-0 overflow-hidden relative border">
+                                                {item.image ? (
+                                                    <Image
+                                                        src={item.image}
+                                                        alt={item.name}
+                                                        fill
+                                                        className="object-cover"
+                                                        sizes="(max-width: 640px) 80px, 96px"
+                                                    />
+                                                ) : (
+                                                    <span>📦</span>
+                                                )}
+                                            </div>
+
+                                            <div className="flex-grow min-w-0">
+                                                <h3 className="font-semibold text-base sm:text-lg truncate" title={item.name}>{item.name}</h3>
+                                                <p className="text-gray-500 text-xs sm:text-sm line-clamp-1">{item.description}</p>
+
+                                                {/* Quantity and Price - Desktop Only (Hidden on mobile row) */}
+                                                <div className="hidden sm:flex mt-3 items-center gap-6">
+                                                    {/* Quantity Controls */}
+                                                    <div className="flex items-center border rounded-lg bg-gray-50 overflow-hidden">
+                                                        <button
+                                                            onClick={() => updateQuantity(item.id, -1)}
+                                                            className="p-1.5 hover:bg-gray-200 text-gray-600 transition"
+                                                            title="Decrease quantity"
+                                                        >
+                                                            <Minus size={16} />
+                                                        </button>
+                                                        <span className="w-10 text-center font-medium text-sm">{item.quantity}</span>
+                                                        <button
+                                                            onClick={() => updateQuantity(item.id, 1)}
+                                                            className="p-1.5 hover:bg-gray-200 text-gray-600 transition"
+                                                            title="Increase quantity"
+                                                        >
+                                                            <Plus size={16} />
+                                                        </button>
+                                                    </div>
+                                                    <span className="font-bold text-blue-600 text-sm sm:text-base">${item.price}</span>
+                                                </div>
+                                            </div>
                                         </div>
 
-                                        <div className="flex-grow min-w-0">
-                                            <h3 className="font-semibold text-base sm:text-lg truncate" title={item.name}>{item.name}</h3>
-                                            <p className="text-gray-500 text-xs sm:text-sm line-clamp-1">{item.description}</p>
-
-                                            {/* Quantity and Price - Desktop Only (Hidden on mobile row) */}
-                                            <div className="hidden sm:flex mt-3 items-center gap-6">
-                                                {/* Quantity Controls */}
+                                        {/* Mobile Only: Quantity, Price, and Total Row */}
+                                        <div className="flex sm:hidden items-center justify-between pt-2 border-t mt-1">
+                                            <div className="flex items-center gap-3">
                                                 <div className="flex items-center border rounded-lg bg-gray-50 overflow-hidden">
                                                     <button
                                                         onClick={() => updateQuantity(item.id, -1)}
-                                                        className="p-1.5 hover:bg-gray-200 text-gray-600 transition"
-                                                        title="Decrease quantity"
+                                                        className="p-1 px-2 hover:bg-gray-200 text-gray-600 transition"
                                                     >
-                                                        <Minus size={16} />
+                                                        <Minus size={14} />
                                                     </button>
-                                                    <span className="w-10 text-center font-medium text-sm">{item.quantity}</span>
+                                                    <span className="w-8 text-center font-medium text-xs">{item.quantity}</span>
                                                     <button
                                                         onClick={() => updateQuantity(item.id, 1)}
-                                                        className="p-1.5 hover:bg-gray-200 text-gray-600 transition"
-                                                        title="Increase quantity"
+                                                        className="p-1 px-2 hover:bg-gray-200 text-gray-600 transition"
                                                     >
-                                                        <Plus size={16} />
+                                                        <Plus size={14} />
                                                     </button>
                                                 </div>
-                                                <span className="font-bold text-blue-600 text-sm sm:text-base">${item.price}</span>
+                                                <span className="text-xs text-gray-400">@ ${item.price}</span>
+                                            </div>
+                                            <div className="font-bold text-lg">
+                                                ${(item.price * item.quantity).toFixed(2)}
                                             </div>
                                         </div>
-                                    </div>
 
-                                    {/* Mobile Only: Quantity, Price, and Total Row */}
-                                    <div className="flex sm:hidden items-center justify-between pt-2 border-t mt-1">
-                                        <div className="flex items-center gap-3">
-                                            <div className="flex items-center border rounded-lg bg-gray-50 overflow-hidden">
-                                                <button
-                                                    onClick={() => updateQuantity(item.id, -1)}
-                                                    className="p-1 px-2 hover:bg-gray-200 text-gray-600 transition"
-                                                >
-                                                    <Minus size={14} />
-                                                </button>
-                                                <span className="w-8 text-center font-medium text-xs">{item.quantity}</span>
-                                                <button
-                                                    onClick={() => updateQuantity(item.id, 1)}
-                                                    className="p-1 px-2 hover:bg-gray-200 text-gray-600 transition"
-                                                >
-                                                    <Plus size={14} />
-                                                </button>
-                                            </div>
-                                            <span className="text-xs text-gray-400">@ ${item.price}</span>
-                                        </div>
-                                        <div className="font-bold text-lg">
+                                        {/* Desktop Only: Item Total Price */}
+                                        <div className="hidden sm:block text-right font-bold text-lg sm:text-xl min-w-[80px]">
                                             ${(item.price * item.quantity).toFixed(2)}
                                         </div>
                                     </div>
-
-                                    {/* Desktop Only: Item Total Price */}
-                                    <div className="hidden sm:block text-right font-bold text-lg sm:text-xl min-w-[80px]">
-                                        ${(item.price * item.quantity).toFixed(2)}
-                                    </div>
-                                </div>
-                            </CardContent>
-                        </Card>
+                                </CardContent>
+                            </Card>
+                        </motion.div>
                     ))}
-                </div>
+                </motion.div>
 
                 {/* Order Summary - Right Column */}
                 <div className="md:col-span-1">
@@ -337,6 +363,6 @@ export default function CartPage() {
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
-        </div>
+        </div >
     );
 }

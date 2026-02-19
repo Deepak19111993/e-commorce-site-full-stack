@@ -1,6 +1,6 @@
 import { Hono } from 'hono';
 import { db } from '@/db';
-import { parkingBookings, transactions } from '@/db/schema';
+import { parkingBookings, transactions, parkingUsers } from '@/db/schema';
 import { eq, and, gt, lt, desc } from 'drizzle-orm';
 
 const app = new Hono();
@@ -175,6 +175,32 @@ app.get('/my-bookings', async (c) => {
     } catch (error) {
         console.error('Fetch bookings error:', error);
         return c.json({ error: 'Failed to fetch bookings' }, 500);
+    }
+});
+
+// GET /all-bookings (Admin only)
+app.get('/all-bookings', async (c) => {
+    const role = c.req.header('X-User-Role');
+    if (role !== 'admin') return c.json({ error: 'Forbidden' }, 403);
+
+    try {
+        const bookings = await db.select({
+            id: parkingBookings.id,
+            slotId: parkingBookings.slotId,
+            startTime: parkingBookings.startTime,
+            endTime: parkingBookings.endTime,
+            paymentStatus: parkingBookings.paymentStatus,
+            userName: parkingUsers.name,
+            userEmail: parkingUsers.email,
+        })
+            .from(parkingBookings)
+            .leftJoin(parkingUsers, eq(parkingBookings.userId, parkingUsers.id))
+            .orderBy(desc(parkingBookings.startTime));
+
+        return c.json(bookings);
+    } catch (error) {
+        console.error('Fetch all bookings error:', error);
+        return c.json({ error: 'Failed to fetch all bookings' }, 500);
     }
 });
 

@@ -25,6 +25,16 @@ app.get('/hello', (c) => {
     })
 })
 
+app.onError((err, c) => {
+    console.error(`[Hono Error]: ${err.message}`);
+    console.error(err.stack);
+    return c.json({
+        error: err.message,
+        stack: process.env.NODE_ENV === 'development' ? err.stack : undefined,
+        message: 'An internal server error occurred'
+    }, 500);
+})
+
 export const GET = handle(app)
 export const POST = handle(app)
 export const PUT = handle(app)

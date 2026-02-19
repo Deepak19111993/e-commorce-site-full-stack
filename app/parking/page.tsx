@@ -17,6 +17,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { PaymentModal } from "@/components/parking/PaymentModal";
 import { ReceiptModal } from "@/components/parking/ReceiptModal";
+import { motion } from "framer-motion";
 
 export default function ParkingPage() {
     const router = useRouter();
@@ -31,34 +32,77 @@ export default function ParkingPage() {
     const [hasChecked, setHasChecked] = useState(false);
 
     const [availableSlots, setAvailableSlots] = useState<number[]>([]);
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
     const [bookingLoading, setBookingLoading] = useState(false);
     const [myBookings, setMyBookings] = useState<any[]>([]);
+    const [bookingsLoading, setBookingsLoading] = useState(true);
 
-    useEffect(() => {
-        setMounted(true);
-        const storedUser = localStorage.getItem('user');
-        if (storedUser) {
-            setUser(JSON.parse(storedUser));
-        } else {
-            router.push('/login');
-        }
-
-        // Restore parking state
-        const savedState = localStorage.getItem('parkingValetState');
-        if (savedState) {
-            try {
-                const parsed = JSON.parse(savedState);
-                if (parsed.startDate) setStartDate(new Date(parsed.startDate));
-                if (parsed.startTimeStr) setStartTimeStr(parsed.startTimeStr);
-                if (parsed.endDate) setEndDate(new Date(parsed.endDate));
-                if (parsed.endTimeStr) setEndTimeStr(parsed.endTimeStr);
-                if (parsed.availableSlots) setAvailableSlots(parsed.availableSlots);
-                if (parsed.hasChecked) setHasChecked(parsed.hasChecked);
-            } catch (e) {
-                console.error('Failed to parse parking state', e);
+    const containerVariants = {
+        hidden: { opacity: 0 },
+        show: {
+            opacity: 1,
+            transition: {
+                staggerChildren: 0.1
             }
         }
+    };
+
+    const itemVariants = {
+        hidden: { opacity: 0, y: 20 },
+        show: { opacity: 1, y: 0, transition: { duration: 0.4 } }
+    };
+
+    useEffect(() => {
+        const init = () => {
+            const storedUser = localStorage.getItem('user');
+            if (storedUser) {
+                const parsedUser = JSON.parse(storedUser);
+                if (parsedUser.role === 'admin') {
+                    router.push('/parking/admin/dashboard');
+                    return;
+                }
+                setUser(parsedUser);
+            } else {
+                router.push('/login');
+                return;
+            }
+
+            // Restore parking state OR Set Defaults
+            const savedState = localStorage.getItem('parkingValetState');
+            let restored = false;
+
+            if (savedState) {
+                try {
+                    const parsed = JSON.parse(savedState);
+                    if (parsed.startDate) {
+                        setStartDate(new Date(parsed.startDate));
+                        restored = true;
+                    }
+                    if (parsed.startTimeStr) setStartTimeStr(parsed.startTimeStr);
+                    if (parsed.endDate) setEndDate(new Date(parsed.endDate));
+                    if (parsed.endTimeStr) setEndTimeStr(parsed.endTimeStr);
+                    if (parsed.availableSlots) setAvailableSlots(parsed.availableSlots);
+                    if (parsed.hasChecked) setHasChecked(parsed.hasChecked);
+                } catch (e) {
+                    console.error('Failed to parse parking state', e);
+                }
+            }
+
+            if (!restored) {
+                const now = new Date();
+                const oneHourLater = new Date(now.getTime() + 60 * 60 * 1000);
+
+                setStartDate(now);
+                setStartTimeStr(format(now, 'HH:mm'));
+                setEndDate(oneHourLater);
+                setEndTimeStr(format(oneHourLater, 'HH:mm'));
+                // Don't set hasChecked=true here, let the debounce check do it
+            }
+
+            setMounted(true);
+        };
+
+        init();
     }, [router]);
 
     // Save state to localStorage whenever it changes
@@ -76,39 +120,17 @@ export default function ParkingPage() {
     }, [startDate, startTimeStr, endDate, endTimeStr, availableSlots, hasChecked, mounted]);
 
 
-    // Initialize with current time if no saved state
-    useEffect(() => {
-        if (mounted && !startDate && !hasChecked) {
-            const now = new Date();
-            const oneHourLater = new Date(now.getTime() + 60 * 60 * 1000);
-
-            setStartDate(now);
-            setStartTimeStr(format(now, 'HH:mm'));
-            setEndDate(oneHourLater);
-            setEndTimeStr(format(oneHourLater, 'HH:mm'));
-
-            // Trigger check via the auto-check effect
-        }
-    }, [mounted, startDate, hasChecked]);
-
     useEffect(() => {
         if (user) {
             fetchMyBookings();
-            // Auto check availability on load
-            // Need to wrap in timeout or useEffect to ensure state is ready?
-            // Actually, we can just call checkAvailability directly here since state is initialized
-            // But verify checkAvailability uses state variables which are closures...
-            // It uses state from render scope. So it should work?
-            // checking availability requires startDate etc.
         }
     }, [user]);
 
-
-
     const fetchMyBookings = async () => {
         try {
+            setBookingsLoading(true);
             const res = await fetch('/api/parking/my-bookings', {
-                headers: { 'X-User-Id': String(user.id) }
+                headers: { 'X-User-Id': String(user?.id) }
             });
             if (res.ok) {
                 const data = await res.json();
@@ -116,6 +138,8 @@ export default function ParkingPage() {
             }
         } catch (error) {
             console.error(error);
+        } finally {
+            setBookingsLoading(false);
         }
     };
 
@@ -129,21 +153,28 @@ export default function ParkingPage() {
 
     // Auto-check availability when date/time changes
     useEffect(() => {
+        if (!mounted) return;
+
         const timer = setTimeout(() => {
             if (startDate && startTimeStr && endDate && endTimeStr) {
                 const start = combineDateTime(startDate, startTimeStr);
                 const end = combineDateTime(endDate, endTimeStr);
                 if (start && end && end > start) {
                     checkAvailability(true);
+                } else {
+                    setHasChecked(false);
+                    setAvailableSlots([]);
+                    setLoading(false); // Stop loading if input is invalid
                 }
             } else {
                 setHasChecked(false);
                 setAvailableSlots([]);
+                setLoading(false); // Stop loading if input is missing
             }
         }, 500); // Debounce to prevent too many requests
 
         return () => clearTimeout(timer);
-    }, [startDate, startTimeStr, endDate, endTimeStr]);
+    }, [startDate, startTimeStr, endDate, endTimeStr, mounted]);
 
     const checkAvailability = async (isAuto = false) => {
         const start = combineDateTime(startDate, startTimeStr);
@@ -291,7 +322,12 @@ export default function ParkingPage() {
     const validRange = startDate && startTimeStr && endDate && endTimeStr;
 
     return (
-        <div className="container mx-auto py-8">
+        <motion.div
+            className="container mx-auto py-8"
+            variants={containerVariants}
+            initial="hidden"
+            animate="show"
+        >
             <PaymentModal
                 isOpen={paymentOpen}
                 onClose={() => setPaymentOpen(false)}
@@ -310,7 +346,10 @@ export default function ParkingPage() {
                 date={new Date()}
             />
 
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+            <motion.div
+                variants={itemVariants}
+                className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4"
+            >
                 <div>
                     <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Smart Parking</h1>
                     <p className="text-gray-500">Book your secure parking spot instantly.</p>
@@ -322,7 +361,15 @@ export default function ParkingPage() {
                         </div>
                         <div>
                             <p className="text-xs text-indigo-600 font-bold uppercase tracking-wider">Available Slots</p>
-                            <p className="text-xl font-bold text-indigo-900">{hasChecked ? availableSlots.length : 20}</p>
+                            <div className="h-7 flex items-center">
+                                {loading ? (
+                                    <Loader2 className="w-5 h-5 animate-spin text-indigo-600" />
+                                ) : (
+                                    <p className="text-xl font-bold text-indigo-900 leading-none">
+                                        {hasChecked ? availableSlots.length : 20}
+                                    </p>
+                                )}
+                            </div>
                         </div>
                     </Card>
                     <Card className="p-4 flex items-center gap-3 bg-emerald-50 border-emerald-100 shadow-sm">
@@ -331,15 +378,26 @@ export default function ParkingPage() {
                         </div>
                         <div>
                             <p className="text-xs text-emerald-600 font-bold uppercase tracking-wider">My Bookings</p>
-                            <p className="text-xl font-bold text-emerald-900">{myBookings.length}</p>
+                            <div className="h-7 flex items-center">
+                                {bookingsLoading ? (
+                                    <Loader2 className="w-5 h-5 animate-spin text-emerald-600" />
+                                ) : (
+                                    <p className="text-xl font-bold text-emerald-900 leading-none">
+                                        {myBookings.length}
+                                    </p>
+                                )}
+                            </div>
                         </div>
                     </Card>
                 </div>
-            </div>
+            </motion.div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <motion.div
+                variants={containerVariants}
+                className="grid grid-cols-1 lg:grid-cols-3 gap-8"
+            >
                 {/* Left Column: Booking Workflow */}
-                <div className="lg:col-span-2 space-y-8">
+                <motion.div variants={itemVariants} className="lg:col-span-2 space-y-8">
                     {/* Step 1: Time Selection */}
                     <Card className="border-none shadow-lg bg-white overflow-hidden">
                         <CardHeader className="bg-gray-50 border-b pb-4">
@@ -455,12 +513,18 @@ export default function ParkingPage() {
                                 {!validRange && (
                                     <p className="text-center text-sm text-gray-500 mb-4">Please select a date and time to check precise availability. Showing all slots.</p>
                                 )}
-                                <div className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-5 gap-4">
+                                <motion.div
+                                    variants={containerVariants}
+                                    initial="hidden"
+                                    animate="show"
+                                    className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-5 gap-4"
+                                >
                                     {allSlots.map((slotId) => {
                                         const isAvailable = hasChecked ? availableSlots.includes(slotId) : true;
                                         return (
-                                            <button
+                                            <motion.button
                                                 key={slotId}
+                                                variants={itemVariants}
                                                 disabled={bookingLoading}
                                                 onClick={() => initiateBooking(slotId)}
                                                 className={`
@@ -483,10 +547,10 @@ export default function ParkingPage() {
                                                 {isAvailable && (
                                                     <div className="absolute inset-x-0 bottom-0 top-0 bg-emerald-500/0 group-hover:bg-emerald-500/5 rounded-xl transition-colors" />
                                                 )}
-                                            </button>
+                                            </motion.button>
                                         );
                                     })}
-                                </div>
+                                </motion.div>
                                 <div className="mt-6 flex gap-6 text-sm font-medium text-gray-600 justify-center">
                                     <div className="flex items-center gap-2">
                                         <div className="w-4 h-4 bg-white border-2 border-emerald-500 rounded"></div>
@@ -500,24 +564,51 @@ export default function ParkingPage() {
                             </div>
                         </CardContent>
                     </Card>
-                </div>
+                </motion.div>
 
                 {/* Right Column: History */}
-                <div className="lg:col-span-1">
-                    <Card className="border-none shadow-lg bg-white h-full max-h-[calc(100vh-120px)] flex flex-col">
-                        <CardHeader className="bg-gray-50 border-b pb-4">
+                <motion.div variants={itemVariants} className="lg:col-span-1">
+                    <Card className="border-none shadow-lg bg-white h-fit flex flex-col">
+                        <CardHeader className="bg-gray-50 border-b pb-4 sticky top-[60px] z-10">
                             <CardTitle className="text-lg">Recent Bookings</CardTitle>
                         </CardHeader>
-                        <CardContent className="p-0 flex-1 overflow-y-auto">
-                            {myBookings.length === 0 ? (
+                        <CardContent className="p-0 flex-1">
+                            {bookingsLoading ? (
+                                <div className="divide-y divide-gray-100">
+                                    {[1, 2, 3].map((i) => (
+                                        <div key={i} className="p-4 animate-pulse">
+                                            <div className="flex justify-between items-start mb-2">
+                                                <div className="flex items-center gap-2">
+                                                    <div className="bg-gray-200 w-7 h-7 rounded"></div>
+                                                    <div className="h-4 bg-gray-200 rounded w-20"></div>
+                                                </div>
+                                                <div className="h-3 bg-gray-100 rounded w-8"></div>
+                                            </div>
+                                            <div className="space-y-2 ml-9">
+                                                <div className="h-3 bg-gray-100 rounded w-32"></div>
+                                                <div className="h-3 bg-gray-100 rounded w-32"></div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : myBookings.length === 0 ? (
                                 <div className="p-8 text-center text-gray-500">
                                     <History className="w-8 h-8 mx-auto mb-2 opacity-20" />
                                     <p className="text-sm">No bookings history.</p>
                                 </div>
                             ) : (
-                                <div className="divide-y divide-gray-100">
+                                <motion.div
+                                    variants={containerVariants}
+                                    initial="hidden"
+                                    animate="show"
+                                    className="divide-y divide-gray-100"
+                                >
                                     {myBookings.map((booking) => (
-                                        <div key={booking.id} className="p-4 hover:bg-gray-50 transition-colors">
+                                        <motion.div
+                                            key={booking.id}
+                                            variants={itemVariants}
+                                            className="p-4 hover:bg-gray-50 transition-colors"
+                                        >
                                             <div className="flex justify-between items-start mb-2">
                                                 <div className="flex items-center gap-2">
                                                     <div className="bg-indigo-100 text-indigo-600 p-1.5 rounded">
@@ -537,14 +628,14 @@ export default function ParkingPage() {
                                                     <span>{format(new Date(booking.endTime), "MMM dd, p")}</span>
                                                 </div>
                                             </div>
-                                        </div>
+                                        </motion.div>
                                     ))}
-                                </div>
+                                </motion.div>
                             )}
                         </CardContent>
                     </Card>
-                </div>
-            </div>
-        </div>
+                </motion.div>
+            </motion.div>
+        </motion.div>
     );
 }

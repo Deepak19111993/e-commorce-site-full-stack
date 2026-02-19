@@ -1,7 +1,7 @@
 
 import 'dotenv/config';
 import { db } from '../db';
-import { users } from '../db/schema';
+import { storeUsers as users } from '../db/schema';
 
 const run = async () => {
     try {

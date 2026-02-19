@@ -26,6 +26,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { motion } from "framer-motion";
 
 export default function UserDashboard() {
     const router = useRouter();
@@ -103,7 +104,12 @@ export default function UserDashboard() {
     if (!user) return <FullScreenLoader />;
 
     return (
-        <div className="pt-6">
+        <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="pt-6"
+        >
             <div className="flex justify-between items-center mb-6">
                 <h1 className="text-xl sm:text-2xl font-bold">User Dashboard</h1>
             </div>
@@ -200,6 +206,6 @@ export default function UserDashboard() {
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>
-        </div>
+        </motion.div>
     );
 }

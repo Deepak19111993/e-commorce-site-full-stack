@@ -8,6 +8,8 @@ import { toast } from "sonner";
 import ProductSkeleton from "./ProductSkeleton";
 import { ChevronDown, ChevronUp, Filter } from "lucide-react";
 
+import { motion } from "framer-motion";
+
 export default function ProductsAndOrders() {
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -17,6 +19,21 @@ export default function ProductsAndOrders() {
     const [cart, setCart] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [sidebarOpen, setSidebarOpen] = useState(false);
+
+    const containerVariants = {
+        hidden: { opacity: 0 },
+        show: {
+            opacity: 1,
+            transition: {
+                staggerChildren: 0.1
+            }
+        }
+    };
+
+    const itemVariants = {
+        hidden: { opacity: 0, y: 20 },
+        show: { opacity: 1, y: 0, transition: { duration: 0.4 } }
+    };
 
     // Get filter values from URL query parameters
     const selectedCategory = searchParams.get('category') || 'All';
@@ -292,56 +309,63 @@ export default function ProductsAndOrders() {
                             <p className="text-gray-400 text-sm">Try adjusting your filters</p>
                         </div>
                     ) : (
-                        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
+                        <motion.div
+                            variants={containerVariants}
+                            initial="hidden"
+                            animate="show"
+                            className="grid grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4"
+                        >
                             {products.map((p) => {
                                 const isInCart = cart.some((item) => item.id === p.id);
                                 const isOutOfStock = p.stock <= 0;
                                 return (
-                                    <Card key={p.id} className={`overflow-hidden flex flex-col h-full ${isOutOfStock ? 'opacity-60 grayscale pointer-events-none' : ''}`}>
-                                        <div className="h-40 sm:h-48 bg-gray-200 flex items-center justify-center text-gray-500 relative">
-                                            {p.image ? (
-                                                <Image
-                                                    src={p.image}
-                                                    alt={p.name}
-                                                    fill
-                                                    className="object-cover"
-                                                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                                                />
-                                            ) : (
-                                                <span className="text-4xl">📦</span>
-                                            )}
-                                            {p.category && (
-                                                <div className="absolute top-2 left-2 bg-white/90 backdrop-blur-sm px-2 py-0.5 rounded text-[10px] font-bold text-indigo-700 uppercase tracking-wider shadow-sm border border-indigo-100">
-                                                    {p.category}
-                                                </div>
-                                            )}
-                                        </div>
-                                        <CardHeader className="p-2 sm:p-4">
-                                            <CardTitle className="text-sm sm:text-lg leading-[120%]">{p.name}</CardTitle>
-                                        </CardHeader>
-                                        <CardContent className="p-2 sm:p-4 pt-0 flex flex-col flex-1">
-                                            <p className="text-gray-600 text-xs sm:text-sm mb-2 line-clamp-2 leading-[120%]">{p.description || "No description provided."}</p>
-                                            <div className="flex justify-between items-center font-bold mb-2 text-sm sm:text-base">
-                                                <span>${p.price}</span>
-                                                <span className="text-[10px] sm:text-xs text-gray-500 font-normal">{p.stock} in stock</span>
+                                    <motion.div key={p.id} variants={itemVariants} className="h-full">
+                                        <Card className={`overflow-hidden flex flex-col h-full ${isOutOfStock ? 'opacity-60 grayscale pointer-events-none' : ''}`}>
+                                            <div className="h-40 sm:h-48 bg-gray-200 flex items-center justify-center text-gray-500 relative">
+                                                {p.image ? (
+                                                    <Image
+                                                        src={p.image}
+                                                        alt={p.name}
+                                                        fill
+                                                        className="object-cover"
+                                                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                                    />
+                                                ) : (
+                                                    <span className="text-4xl">📦</span>
+                                                )}
+                                                {p.category && (
+                                                    <div className="absolute top-2 left-2 bg-white/90 backdrop-blur-sm px-2 py-0.5 rounded text-[10px] font-bold text-indigo-700 uppercase tracking-wider shadow-sm border border-indigo-100">
+                                                        {p.category}
+                                                    </div>
+                                                )}
                                             </div>
-                                            <button
-                                                onClick={() => addToCart(p)}
-                                                disabled={isInCart || isOutOfStock}
-                                                className={`w-full py-2 sm:py-2.5 rounded-lg font-semibold transition-all duration-200 shadow-sm active:scale-[0.98] text-xs sm:text-base mt-auto
+                                            <CardHeader className="p-2 sm:p-4">
+                                                <CardTitle className="text-sm sm:text-lg leading-[120%]">{p.name}</CardTitle>
+                                            </CardHeader>
+                                            <CardContent className="p-2 sm:p-4 pt-0 flex flex-col flex-1">
+                                                <p className="text-gray-600 text-xs sm:text-sm mb-2 line-clamp-2 leading-[120%]">{p.description || "No description provided."}</p>
+                                                <div className="flex justify-between items-center font-bold mb-2 text-sm sm:text-base">
+                                                    <span>${p.price}</span>
+                                                    <span className="text-[10px] sm:text-xs text-gray-500 font-normal">{p.stock} in stock</span>
+                                                </div>
+                                                <button
+                                                    onClick={() => addToCart(p)}
+                                                    disabled={isInCart || isOutOfStock}
+                                                    className={`w-full py-2 sm:py-2.5 rounded-lg font-semibold transition-all duration-200 shadow-sm active:scale-[0.98] text-xs sm:text-base mt-auto
                                                             ${isOutOfStock
-                                                        ? 'bg-gray-200 text-gray-500 cursor-not-allowed border'
-                                                        : isInCart
-                                                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed border'
-                                                            : 'bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white shadow-indigo-200 hover:shadow-lg hover:shadow-indigo-300'}`}
-                                            >
-                                                {isOutOfStock ? "Out of Stock" : isInCart ? "Already in Basket" : "Add to Basket"}
-                                            </button>
-                                        </CardContent>
-                                    </Card>
-                                )
+                                                            ? 'bg-gray-200 text-gray-500 cursor-not-allowed border'
+                                                            : isInCart
+                                                                ? 'bg-gray-100 text-gray-400 cursor-not-allowed border'
+                                                                : 'bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white shadow-indigo-200 hover:shadow-lg hover:shadow-indigo-300'}`}
+                                                >
+                                                    {isOutOfStock ? "Out of Stock" : isInCart ? "Already in Basket" : "Add to Basket"}
+                                                </button>
+                                            </CardContent>
+                                        </Card>
+                                    </motion.div>
+                                );
                             })}
-                        </div>
+                        </motion.div>
                     )}
                 </div>
             </div>

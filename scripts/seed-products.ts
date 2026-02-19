@@ -1,7 +1,4 @@
-
-import { config } from 'dotenv';
-config({ path: '.env' });
-
+import 'dotenv/config';
 import { db } from '../db';
 import { products } from '../db/schema';
 

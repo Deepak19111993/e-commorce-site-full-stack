@@ -20,8 +20,8 @@ export default function Header() {
     const pathname = usePathname();
     const searchParams = useSearchParams();
 
-    // Determine context based on path or query param (for auth pages)
-    const context = pathname?.startsWith('/parking') || searchParams.get('type') === 'parking' ? 'parking' : 'store';
+    // Immediately hide header for auth routes to prevent layout shift/reserved height
+    const isAuthRoute = pathname === '/login' || pathname === '/signup';
 
     useEffect(() => {
         const storedUser = localStorage.getItem('user');
@@ -32,6 +32,15 @@ export default function Header() {
         }
         setCheckingUser(false);
     }, [pathname]);
+
+    if (isAuthRoute && !user) {
+        return null;
+    }
+
+
+    // Determine context based on path or query param (for auth pages)
+    const context = pathname?.startsWith('/parking') || searchParams.get('type') === 'parking' ? 'parking' : 'store';
+
 
     const isActive = (path: string) => pathname === path;
     const linkClass = (path: string) =>
@@ -50,11 +59,17 @@ export default function Header() {
         if (context === 'parking') {
             return (
                 <>
-                    <Link href="/parking" onClick={() => setIsOpen(false)} className={linkClass('/parking')}>Parking</Link>
-                    <Link href="/parking/transactions" onClick={() => setIsOpen(false)} className={linkClass('/parking/transactions')}>Transactions</Link>
-                    <Link href="/parking/profile" onClick={() => setIsOpen(false)} className={linkClass('/parking/profile')}>Profile</Link>
+                    {user?.role !== 'admin' ? (
+                        <>
+                            <Link href="/parking" onClick={() => setIsOpen(false)} className={linkClass('/parking')}>Parking</Link>
+                            <Link href="/parking/transactions" onClick={() => setIsOpen(false)} className={linkClass('/parking/transactions')}>Transactions</Link>
+                            <Link href="/parking/profile" onClick={() => setIsOpen(false)} className={linkClass('/parking/profile')}>Profile</Link>
+                        </>
+                    ) : (
+                        <Link href="/parking/admin/profile" onClick={() => setIsOpen(false)} className={linkClass('/parking/admin/profile')}>Profile</Link>
+                    )}
                     {user?.role === 'admin' && (
-                        <Link href="/admin/dashboard" onClick={() => setIsOpen(false)} className={linkClass('/admin/dashboard')}>Admin</Link>
+                        <Link href="/parking/admin/dashboard" onClick={() => setIsOpen(false)} className={linkClass('/parking/admin/dashboard')}>Admin</Link>
                     )}
                 </>
             );
@@ -83,7 +98,7 @@ export default function Header() {
     return (
         <header className="bg-white/80 backdrop-blur-md shadow-sm border-b sticky top-0 z-50">
             <div className="container mx-auto px-4 h-16 flex justify-between items-center">
-                <Link href={user?.role === 'admin' ? '/admin/dashboard' : (context === 'parking' ? '/parking' : '/')} className="flex items-center gap-2 group shrink-0">
+                <Link href={user?.role === 'admin' ? (context === 'parking' ? '/parking/admin/dashboard' : '/admin/dashboard') : (context === 'parking' ? '/parking' : '/')} className="flex items-center gap-2 group shrink-0">
                     <div className={`p-2 rounded-xl text-white shadow-lg transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3 ${context === 'parking' ? 'bg-gradient-to-br from-emerald-600 to-teal-600 shadow-emerald-100' : 'bg-gradient-to-br from-indigo-600 to-violet-600 shadow-indigo-100'}`}>
                         {context === 'parking' ? <Car className="h-5 w-5" /> : <ShoppingBag className="h-5 w-5" />}
                     </div>
