@@ -146,7 +146,14 @@ export default function CartPage() {
 
     return (
         <div className="space-y-6 pt-6">
-            <h1 className="text-2xl sm:text-3xl font-bold">Shopping Basket</h1>
+            <motion.h1
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+                className="text-2xl sm:text-3xl font-bold"
+            >
+                Shopping Basket
+            </motion.h1>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 {/* Cart Items - Left Column */}
                 <motion.div
@@ -252,7 +259,12 @@ export default function CartPage() {
                 </motion.div>
 
                 {/* Order Summary - Right Column */}
-                <div className="md:col-span-1">
+                <motion.div
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.2, duration: 0.5 }}
+                    className="md:col-span-1"
+                >
                     <Card className="sticky top-4 border shadow-md">
                         <CardHeader className="bg-gray-50/50 pb-4 border-b">
                             <CardTitle className="text-lg">Order Summary</CardTitle>
@@ -278,7 +290,7 @@ export default function CartPage() {
                             </button>
                         </CardContent>
                     </Card>
-                </div>
+                </motion.div>
             </div>
 
             <Dialog open={isPaymentModalOpen} onOpenChange={setIsPaymentModalOpen}>

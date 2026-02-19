@@ -134,7 +134,14 @@ export default function OrdersPage() {
 
     return (
         <div className="space-y-6 max-w-5xl w-full mx-auto pt-6">
-            <h1 className="text-2xl sm:text-3xl font-bold mb-6">Your Orders</h1>
+            <motion.h1
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+                className="text-2xl sm:text-3xl font-bold mb-6"
+            >
+                Your Orders
+            </motion.h1>
             {orders.length === 0 ? (
                 <Card>
                     <CardContent className="p-8 text-center text-gray-500">
