@@ -117,3 +117,8 @@ export const parkingUsersRelations = relations(parkingUsers, ({ many }) => ({
     parkingBookings: many(parkingBookings),
     transactions: many(transactions),
 }));
+
+export const stations = pgTable('stations', {
+    code: text('code').primaryKey(), // Station Code (e.g., NDLS)
+    name: text('name').notNull(),    // Station Name (e.g., New Delhi)
+});

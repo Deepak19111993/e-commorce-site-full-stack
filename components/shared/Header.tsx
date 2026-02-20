@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
-import { ShoppingBag, Menu, Car } from "lucide-react";
+import { ShoppingBag, Menu, Car, Train } from "lucide-react";
 import {
     Sheet,
     SheetContent,
@@ -33,13 +33,15 @@ export default function Header() {
         setCheckingUser(false);
     }, [pathname]);
 
-    if (isAuthRoute && !user) {
+    if (isAuthRoute) {
         return null;
     }
 
 
     // Determine context based on path or query param (for auth pages)
-    const context = pathname?.startsWith('/parking') || searchParams.get('type') === 'parking' ? 'parking' : 'store';
+    const context = pathname?.startsWith('/parking') || searchParams.get('type') === 'parking' ? 'parking' :
+        pathname?.startsWith('/train') || searchParams.get('type') === 'train' ? 'train' :
+            'store';
 
 
     const isActive = (path: string) => pathname === path;
@@ -54,8 +56,7 @@ export default function Header() {
     };
 
     const NavLinks = () => {
-        // If in parking context, only show Parking and Profile (and maybe Store link to switch back?)
-        // User requested: "no need to menu item like: products, basket, orders in header"
+        // If in parking context
         if (context === 'parking') {
             return (
                 <>
@@ -71,6 +72,19 @@ export default function Header() {
                     {user?.role === 'admin' && (
                         <Link href="/parking/admin/dashboard" onClick={() => setIsOpen(false)} className={linkClass('/parking/admin/dashboard')}>Admin</Link>
                     )}
+                </>
+            );
+        }
+
+        // If in train context
+        if (context === 'train') {
+            return (
+                <>
+                    <Link href="/train" onClick={() => setIsOpen(false)} className={linkClass('/train')}>Dashboard</Link>
+                    <Link href="/train/pnr" onClick={() => setIsOpen(false)} className={linkClass('/train/pnr')}>PNR Status</Link>
+                    <Link href="/train/status" onClick={() => setIsOpen(false)} className={linkClass('/train/status')}>Live Status</Link>
+                    <Link href="/train/station" onClick={() => setIsOpen(false)} className={linkClass('/train/station')}>Live Station</Link>
+                    <Link href="/train/between" onClick={() => setIsOpen(false)} className={linkClass('/train/between')}>Trains Between</Link>
                 </>
             );
         }
@@ -95,15 +109,53 @@ export default function Header() {
         );
     };
 
+    const getContextIcon = () => {
+        if (context === 'parking') return <Car className="h-5 w-5" />;
+        if (context === 'train') return <Train className="h-5 w-5" />;
+        return <ShoppingBag className="h-5 w-5" />;
+    };
+
+    const getContextTitle = () => {
+        if (context === 'parking') return 'Smart Parking';
+        if (context === 'train') return 'Train Info';
+        return 'Store';
+    };
+
+    const getContextGradient = () => {
+        if (context === 'parking') return 'bg-gradient-to-br from-emerald-600 to-teal-600 shadow-emerald-100';
+        if (context === 'train') return 'bg-gradient-to-br from-orange-600 to-red-600 shadow-orange-100';
+        return 'bg-gradient-to-br from-indigo-600 to-violet-600 shadow-indigo-100';
+    };
+
+    const getTextGradient = () => {
+        if (context === 'parking') return 'bg-gradient-to-r from-gray-900 to-emerald-600 group-hover:to-emerald-500';
+        if (context === 'train') return 'bg-gradient-to-r from-gray-900 to-orange-600 group-hover:to-orange-500';
+        return 'bg-gradient-to-r from-gray-900 to-gray-600 group-hover:to-indigo-600';
+    };
+
+    const getButtonGradient = () => {
+        if (context === 'parking') return 'bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700';
+        if (context === 'train') return 'bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700';
+        return 'bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700';
+    };
+
+    const getLinkColor = () => {
+        if (context === 'parking') return 'text-emerald-600 hover:text-emerald-700';
+        if (context === 'train') return 'text-orange-600 hover:text-orange-700';
+        return 'text-indigo-600 hover:text-indigo-700';
+
+    }
+
+
     return (
         <header className="bg-white/80 backdrop-blur-md shadow-sm border-b sticky top-0 z-50">
             <div className="container mx-auto px-4 h-16 flex justify-between items-center">
-                <Link href={user?.role === 'admin' ? (context === 'parking' ? '/parking/admin/dashboard' : '/admin/dashboard') : (context === 'parking' ? '/parking' : '/')} className="flex items-center gap-2 group shrink-0">
-                    <div className={`p-2 rounded-xl text-white shadow-lg transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3 ${context === 'parking' ? 'bg-gradient-to-br from-emerald-600 to-teal-600 shadow-emerald-100' : 'bg-gradient-to-br from-indigo-600 to-violet-600 shadow-indigo-100'}`}>
-                        {context === 'parking' ? <Car className="h-5 w-5" /> : <ShoppingBag className="h-5 w-5" />}
+                <Link href={user?.role === 'admin' ? (context === 'parking' ? '/parking/admin/dashboard' : '/admin/dashboard') : (context === 'parking' ? '/parking' : context === 'train' ? '/train' : '/')} className="flex items-center gap-2 group shrink-0">
+                    <div className={`p-2 rounded-xl text-white shadow-lg transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3 ${getContextGradient()}`}>
+                        {getContextIcon()}
                     </div>
-                    <span className={`text-xl font-bold bg-clip-text text-transparent transition-all ${context === 'parking' ? 'bg-gradient-to-r from-gray-900 to-emerald-600 group-hover:to-emerald-500' : 'bg-gradient-to-r from-gray-900 to-gray-600 group-hover:to-indigo-600'}`}>
-                        {context === 'parking' ? 'Smart Parking' : 'Store'}
+                    <span className={`text-xl font-bold bg-clip-text text-transparent transition-all ${getTextGradient()}`}>
+                        {getContextTitle()}
                     </span>
                 </Link>
 
@@ -121,17 +173,27 @@ export default function Header() {
                                 Logout
                             </button>
                         </>
+                    ) : context === 'train' ? (
+                        <>
+                            <NavLinks />
+                            <Link
+                                href={`/login?type=train`}
+                                className="text-gray-400 hover:text-rose-600 font-semibold ml-4 transition-colors duration-200"
+                            >
+                                Logout
+                            </Link>
+                        </>
                     ) : (
                         <div className="flex items-center gap-6">
                             <Link
                                 href={`/login${context === 'parking' ? '?type=parking' : ''}`}
-                                className={`px-6 py-2 rounded-full font-semibold shadow-md hover:shadow-lg transition-all active:scale-[0.98] text-white ${context === 'parking' ? 'bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700' : 'bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700'}`}
+                                className={`px-6 py-2 rounded-full font-semibold shadow-md hover:shadow-lg transition-all active:scale-[0.98] text-white ${getButtonGradient()}`}
                             >
                                 Login
                             </Link>
                             <Link
                                 href={`/signup${context === 'parking' ? '?type=parking' : ''}`}
-                                className={`font-semibold ${context === 'parking' ? 'text-emerald-600 hover:text-emerald-700' : 'text-indigo-600 hover:text-indigo-700'}`}
+                                className={`font-semibold ${getLinkColor()}`}
                             >
                                 Signup
                             </Link>
@@ -143,10 +205,10 @@ export default function Header() {
                 <div className="md:hidden flex items-center gap-4">
                     {!checkingUser && !user && (
                         <Link
-                            href={`/login${context === 'parking' ? '?type=parking' : ''}`}
-                            className={`font-bold text-sm ${context === 'parking' ? 'text-emerald-600' : 'text-indigo-600'}`}
+                            href={`/login${context === 'parking' ? '?type=parking' : context === 'train' ? '?type=train' : ''}`}
+                            className={`font-bold text-sm ${context === 'parking' ? 'text-emerald-600' : context === 'train' ? 'text-orange-600' : 'text-indigo-600'}`}
                         >
-                            Login
+                            {context === 'train' ? 'Logout' : 'Login'}
                         </Link>
                     )}
                     <Sheet open={isOpen} onOpenChange={setIsOpen}>
@@ -159,11 +221,11 @@ export default function Header() {
                             <SheetHeader className="text-left border-b pb-3 mb-2 shrink-0">
                                 <SheetTitle className="text-lg font-bold">
                                     <div className="flex items-center gap-2">
-                                        <div className={`p-1.5 rounded-lg text-white shadow-md ${context === 'parking' ? 'bg-gradient-to-br from-emerald-600 to-teal-600' : 'bg-gradient-to-br from-indigo-600 to-violet-600'}`}>
-                                            {context === 'parking' ? <Car size={14} /> : <ShoppingBag size={14} />}
+                                        <div className={`p-1.5 rounded-lg text-white shadow-md ${getContextGradient()}`}>
+                                            {context === 'parking' ? <Car size={14} /> : context === 'train' ? <Train size={14} /> : <ShoppingBag size={14} />}
                                         </div>
                                         <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600">
-                                            {context === 'parking' ? 'Smart Parking' : 'Store'}
+                                            {getContextTitle()}
                                         </span>
                                     </div>
                                 </SheetTitle>
@@ -183,9 +245,17 @@ export default function Header() {
                                     ) : (
                                         <div className="space-y-1">
                                             <p className="text-[10px] font-bold text-gray-400 uppercase tracking-tighter mb-1 px-2">
-                                                {context === 'parking' ? 'Menu' : 'Shop'}
+                                                {context === 'parking' ? 'Menu' : context === 'train' ? 'Train Services' : 'Shop'}
                                             </p>
-                                            {context === 'parking' ? (
+                                            {context === 'train' ? (
+                                                <div className="flex flex-col space-y-1">
+                                                    <Link href="/train" onClick={() => setIsOpen(false)} className={linkClass('/train')}>Dashboard</Link>
+                                                    <Link href="/train/pnr" onClick={() => setIsOpen(false)} className={linkClass('/train/pnr')}>PNR Status</Link>
+                                                    <Link href="/train/status" onClick={() => setIsOpen(false)} className={linkClass('/train/status')}>Live Status</Link>
+                                                    <Link href="/train/station" onClick={() => setIsOpen(false)} className={linkClass('/train/station')}>Live Station</Link>
+                                                    <Link href="/train/between" onClick={() => setIsOpen(false)} className={linkClass('/train/between')}>Trains Between</Link>
+                                                </div>
+                                            ) : context === 'parking' ? (
                                                 <Link href="/parking" onClick={() => setIsOpen(false)} className={linkClass('/parking')}>Book Parking</Link>
                                             ) : (
                                                 <Link href="/" onClick={() => setIsOpen(false)} className={linkClass('/')}>Browse Products</Link>
@@ -207,12 +277,23 @@ export default function Header() {
                                             </div>
                                             Logout
                                         </button>
+                                    ) : context === 'train' ? (
+                                        <Link
+                                            href="/login?type=train"
+                                            onClick={() => setIsOpen(false)}
+                                            className="flex items-center gap-3 w-full text-rose-600 font-semibold py-2.5 hover:bg-rose-50 rounded-lg px-3 transition-all active:scale-[0.98] group text-sm"
+                                        >
+                                            <div className="bg-rose-100 p-1.5 rounded-md group-hover:bg-rose-200 transition-colors">
+                                                <Menu size={16} className="rotate-90" />
+                                            </div>
+                                            Logout
+                                        </Link>
                                     ) : (
                                         <div className="flex gap-2">
                                             <Link
                                                 href={`/login${context === 'parking' ? '?type=parking' : ''}`}
                                                 onClick={() => setIsOpen(false)}
-                                                className={`flex-1 text-white py-2.5 rounded-lg font-bold text-center shadow-md active:scale-[0.98] transition-all hover:opacity-90 text-sm ${context === 'parking' ? 'bg-gradient-to-r from-emerald-600 to-teal-600 shadow-emerald-100' : 'bg-gradient-to-r from-indigo-600 to-violet-600 shadow-indigo-100'}`}
+                                                className={`flex-1 text-white py-2.5 rounded-lg font-bold text-center shadow-md active:scale-[0.98] transition-all hover:opacity-90 text-sm ${getButtonGradient()}`}
                                             >
                                                 Login
                                             </Link>

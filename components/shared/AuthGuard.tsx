@@ -12,13 +12,11 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
     const [authorized, setAuthorized] = useState(false);
 
     useEffect(() => {
-        // Run auth check on every route change
         const checkAuth = () => {
             const storedUser = localStorage.getItem('user');
-            const isPublicRoute = PUBLIC_ROUTES.includes(pathname);
+            const isPublicRoute = PUBLIC_ROUTES.includes(pathname) || pathname.startsWith('/train');
 
             if (!storedUser && !isPublicRoute) {
-                // Not logged in and trying to access private route
                 setAuthorized(false);
                 router.push('/login');
             } else {
@@ -29,8 +27,7 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
         checkAuth();
     }, [pathname, router]);
 
-    // Show nothing (or a loader) while checking authorization for private routes
-    if (!authorized && !PUBLIC_ROUTES.includes(pathname)) {
+    if (!authorized && !PUBLIC_ROUTES.includes(pathname) && !pathname.startsWith('/train')) {
         return <FullScreenLoader />;
     }
 

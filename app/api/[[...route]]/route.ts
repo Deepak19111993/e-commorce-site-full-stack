@@ -7,6 +7,7 @@ import orders from '../orders';
 import auth from '../auth';
 import parking from '../parking';
 import parkingUsers from '../parking-users';
+import train from '../train';
 
 export const runtime = 'nodejs';
 
@@ -18,6 +19,7 @@ app.route('/orders', orders);
 app.route('/auth', auth);
 app.route('/parking', parking);
 app.route('/parking-users', parkingUsers);
+app.route('/train', train);
 
 app.get('/hello', (c) => {
     return c.json({
