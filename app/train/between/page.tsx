@@ -11,7 +11,7 @@ import {
     PopoverTrigger,
 } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
-import { format } from 'date-fns';
+import { format, subDays } from 'date-fns';
 import { cn } from "@/lib/utils";
 
 // Station Search Component to avoid duplication
@@ -269,7 +269,7 @@ export default function TrainsBetweenPage() {
                                         mode="single"
                                         selected={date}
                                         onSelect={setDate}
-                                        disabled={{ before: new Date() }}
+                                        disabled={{ before: subDays(new Date(), 30) }}
                                         initialFocus
                                     />
                                 </PopoverContent>
@@ -292,7 +292,7 @@ export default function TrainsBetweenPage() {
                     </div>
 
                     {error && (
-                        <div className="p-4 bg-red-50 text-red-700 rounded-lg border border-red-200 mb-6">
+                        <div className="p-4 bg-red-50 text-red-700 rounded-lg border border-red-200 mb-6 mt-8">
                             {error}
                         </div>
                     )}

@@ -1,13 +1,13 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Activity, Search, MapPin, Clock, Calendar as CalendarIcon } from 'lucide-react';
+import { Activity, Search, MapPin, Clock, Calendar as CalendarIcon, ChevronDown, ChevronUp } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { format } from 'date-fns';
+import { format, subDays } from 'date-fns';
 import { cn } from "@/lib/utils";
 
 export default function LiveStatusPage() {
@@ -16,10 +16,123 @@ export default function LiveStatusPage() {
     const [loading, setLoading] = useState(false);
     const [data, setData] = useState<any>(null);
     const [error, setError] = useState('');
+    const [isPassedExpanded, setIsPassedExpanded] = useState(false);
+    const [isUpcomingExpanded, setIsUpcomingExpanded] = useState(false);
+
+    const { nextIdx, prevIdx, destinationIdx, passedCount, upcomingCount, liveAnomaly } = useMemo(() => {
+        if (!data || !data.stations) return { nextIdx: -1, prevIdx: -1, destinationIdx: -1, passedCount: 0, upcomingCount: 0, liveAnomaly: null };
+
+        let nextIdx = -1;
+        const anomalyIdx = data.stations.findIndex((s: any) => !s.stationCode);
+
+        let liveAnomaly = null;
+        if (anomalyIdx !== -1) {
+            const anomalyStr = data.stations[anomalyIdx].stationName;
+            const match = anomalyStr.match(/(Arrived at|Departed from|Crossed|Near)\s+([^(]+)\s*\(([^)]+)\)/i);
+            const timeMatch = anomalyStr.match(/([0-9]{2}:[0-9]{2})/);
+            if (match) {
+                liveAnomaly = {
+                    action: match[1],
+                    name: match[2].trim(),
+                    code: match[3].trim(),
+                    time: timeMatch ? timeMatch[1] : "--:--",
+                    isMainStation: data.stations.some((s: any) => s.stationCode === match[3].trim())
+                };
+            }
+        }
+
+        let statusTimeObj: Date | null = null;
+        const currentYear = new Date().getFullYear();
+
+        if (data.statusNote) {
+            const timeMatch = data.statusNote.match(/(\d{1,2}:\d{2})\s+(\d{1,2}-[A-Za-z]{3})/);
+            if (timeMatch) {
+                statusTimeObj = new Date(`${timeMatch[2]}-${currentYear} ${timeMatch[1]}`);
+            }
+        }
+
+        if (statusTimeObj) {
+            nextIdx = data.stations.findIndex((stn: any, i: number) => {
+                if (!stn.stationCode) return false;
+                let timeStr = stn.departure?.actual || stn.arrival?.actual;
+                if (!timeStr || timeStr.includes('SRC') || timeStr.includes('DST')) return false;
+                timeStr = timeStr.replace(/\*/g, '').trim();
+                const parts = timeStr.split(' ');
+                if (parts.length < 2) return false;
+                const stnDate = new Date(`${parts[1]}-${currentYear} ${parts[0]}`);
+                if (isNaN(stnDate.getTime())) return false;
+                return stnDate > statusTimeObj;
+            });
+        }
+
+        if (nextIdx === -1) {
+            if (anomalyIdx !== -1) {
+                nextIdx = anomalyIdx + 1;
+            } else {
+                const match = data.statusNote?.match(/\(([A-Z]+)\)/);
+                if (match && match[1]) {
+                    const idx = data.stations.findIndex((s: any) => s.stationCode === match[1]);
+                    if (idx !== -1) {
+                        if (data.statusNote?.toLowerCase().includes('departed')) nextIdx = idx + 1;
+                        else nextIdx = idx;
+                    }
+                } else {
+                    nextIdx = data.stations.length - 1;
+                }
+            }
+        }
+
+        if (nextIdx >= data.stations.length) nextIdx = data.stations.length - 1;
+        if (nextIdx < 0) nextIdx = 0;
+
+        let prevIdx = -1;
+        for (let i = nextIdx - 1; i >= 0; i--) {
+            if (data.stations[i].stationCode) {
+                prevIdx = i;
+                break;
+            }
+        }
+
+        const destinationIdx = data.stations.length - 1;
+
+        let passedCount = 0;
+        for (let i = 0; i < prevIdx; i++) {
+            if (data.stations[i].stationCode) passedCount++;
+        }
+
+        let upcomingCount = 0;
+        for (let i = nextIdx + 1; i < destinationIdx; i++) {
+            if (data.stations[i].stationCode) upcomingCount++;
+        }
+
+        return { nextIdx, prevIdx, destinationIdx, passedCount, upcomingCount, liveAnomaly };
+    }, [data]);
+
 
     useEffect(() => {
         setDate(new Date());
     }, []);
+
+    // Auto-refresh every 2 minutes if viewing live status
+    useEffect(() => {
+        let interval: NodeJS.Timeout;
+        if (data && trainNo && trainNo.length === 5) {
+            // polling interval: 120000ms = 2 minutes
+            interval = setInterval(async () => {
+                try {
+                    const formattedDate = date ? format(date, 'dd-MM-yyyy') : format(new Date(), 'dd-MM-yyyy');
+                    const res = await fetch(`/api/train/live/${trainNo}?date=${formattedDate}`);
+                    const json = await res.json();
+                    if (json.success) {
+                        setData(json.data);
+                    }
+                } catch (err) {
+                    console.error("Auto-refresh failed", err);
+                }
+            }, 120000);
+        }
+        return () => clearInterval(interval);
+    }, [data, trainNo, date]);
 
     const handleSearch = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -105,7 +218,7 @@ export default function LiveStatusPage() {
                                         mode="single"
                                         selected={date}
                                         onSelect={setDate}
-                                        disabled={{ before: new Date() }}
+                                        disabled={{ before: subDays(new Date(), 30) }}
                                         initialFocus
                                     />
                                 </PopoverContent>
@@ -127,7 +240,7 @@ export default function LiveStatusPage() {
                     </form>
 
                     {error && (
-                        <div className="p-4 bg-red-50 text-red-700 rounded-lg border border-red-200">
+                        <div className="p-4 bg-red-50 text-red-700 rounded-lg border border-red-200 mt-8">
                             {error}
                         </div>
                     )}
@@ -142,16 +255,24 @@ export default function LiveStatusPage() {
                                 <h2 className="text-2xl font-bold text-gray-900 mb-2">
                                     {data.train_name || 'Train'} ({data.train_number || trainNo})
                                 </h2>
-                                <div className="text-lg text-gray-700 flex items-center gap-2">
-                                    <Clock className="w-5 h-5 text-orange-600" />
-                                    {data.statusNote ? (
-                                        <span><strong>{data.statusNote}</strong></span>
-                                    ) : (
-                                        <span>Status: <strong>{data.status || 'Running'}</strong></span>
-                                    )}
+
+                                <div className="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center gap-3">
+                                    <div className="text-lg text-gray-700 flex items-center gap-2">
+                                        <Clock className="w-5 h-5 text-orange-600" />
+                                        {data.statusNote ? (
+                                            <span><strong>{data.statusNote}</strong></span>
+                                        ) : (
+                                            <span>Status: <strong>{data.status || 'Running'}</strong></span>
+                                        )}
+                                    </div>
+                                    <div className="flex items-center gap-2 text-xs font-semibold text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-full border border-emerald-200">
+                                        <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse shadow-sm shadow-emerald-400" />
+                                        Live Auto-Update Active (every 2 min)
+                                    </div>
                                 </div>
+
                                 {data.delay && (
-                                    <div className="mt-2 text-red-600 font-semibold bg-red-50 inline-block px-3 py-1 rounded-full text-sm">
+                                    <div className="mt-4 text-red-600 font-semibold bg-red-50 inline-block px-3 py-1 rounded-full text-sm">
                                         Delayed by {data.delay} minutes
                                     </div>
                                 )}
@@ -173,103 +294,106 @@ export default function LiveStatusPage() {
                                             </thead>
                                             <tbody className="divide-y divide-gray-100">
                                                 {(() => {
-                                                    // ALGORITHM: Time-Based Progress Tracking with Robust Parsing
-                                                    // 1. Parse the "Current Status Time" from `statusNote`.
-                                                    // 2. Iterate through stations and parse their "Actual Departure" (or Arrival) time.
-                                                    // 3. IMPORTANT: Sanitize strings (remove '*') before parsing.
-                                                    // 4. The first station where Station Time > Status Time is CURRENT/NEXT.
-
-                                                    let activeIndex = -1;
-                                                    let statusTimeObj: Date | null = null;
-
-                                                    const currentYear = new Date().getFullYear();
-
-                                                    if (data.statusNote) {
-                                                        // Example: "11:30 20-Feb"
-                                                        const timeMatch = data.statusNote.match(/(\d{1,2}:\d{2})\s+(\d{1,2}-[A-Za-z]{3})/);
-                                                        if (timeMatch) {
-                                                            const [_, timeStr, dateStr] = timeMatch;
-                                                            statusTimeObj = new Date(`${dateStr}-${currentYear} ${timeStr}`);
-                                                        }
-                                                    }
-
-                                                    if (statusTimeObj) {
-                                                        // Find the transition point
-                                                        const found = data.stations.findIndex((stn: any) => {
-                                                            if (!stn.stationCode) return false;
-
-                                                            // Prefer departure time, fall back to arrival
-                                                            let timeStr = stn.departure?.actual || stn.arrival?.actual;
-                                                            // Example inputs: "19:45 19-Feb", "20:53 19-Feb*", "SRC", "DST"
-
-                                                            if (!timeStr || timeStr.includes('SRC') || timeStr.includes('DST')) return false;
-
-                                                            // SANITIZE: Remove asterisks which indicate estimated time
-                                                            timeStr = timeStr.replace(/\*/g, '').trim();
-
-                                                            // Parse station time
-                                                            const parts = timeStr.split(' ');
-                                                            // Expect parts like ["19:45", "19-Feb"]
-                                                            if (parts.length < 2) return false;
-
-                                                            const stnDate = new Date(`${parts[1]}-${currentYear} ${parts[0]}`);
-
-                                                            // If date is invalid, skip
-                                                            if (isNaN(stnDate.getTime())) return false;
-
-                                                            // If this station's time is AFTER the status time, it's the next/current one
-                                                            return stnDate > statusTimeObj;
-                                                        });
-
-                                                        if (found !== -1) {
-                                                            activeIndex = found;
-                                                        } else {
-                                                            // If no future station found, likely reached destination?
-                                                            // Or status time is very recent.
-                                                            if (data.stations.length > 0) {
-                                                                activeIndex = data.stations.length - 1;
-                                                            }
-                                                        }
-                                                    } else {
-                                                        // Fallback: If date parsing fails, use fallback matching (Index/Anomaly detection)
-                                                        const match = data.statusNote?.match(/\(([A-Z]+)\)/);
-                                                        if (match && match[1]) {
-                                                            const idx = data.stations.findIndex((s: any) => s.stationCode === match[1]);
-                                                            if (idx !== -1) {
-                                                                if (data.statusNote?.toLowerCase().includes('departed')) activeIndex = idx + 1;
-                                                                else activeIndex = idx;
-                                                            }
-                                                        } else {
-                                                            // Last Resort: Look for the anomaly row (missing station code)
-                                                            const anomalyIdx = data.stations.findIndex((s: any) => !s.stationCode);
-                                                            if (anomalyIdx !== -1) {
-                                                                activeIndex = anomalyIdx + 1;
-                                                            }
-                                                        }
-                                                    }
-
-                                                    // Clamp index
-                                                    if (activeIndex >= data.stations.length) activeIndex = data.stations.length - 1;
-                                                    if (activeIndex < 0) activeIndex = 0;
-
                                                     return data.stations.map((stn: any, i: number) => {
-                                                        if (!stn.stationCode) return null;
+                                                        const isAnomaly = !stn.stationCode;
+                                                        const isPassedGroup = i < prevIdx && !isAnomaly;
+                                                        const isUpcomingGroup = i > nextIdx && i < destinationIdx && !isAnomaly;
+
+                                                        if (isPassedGroup && !isPassedExpanded) {
+                                                            if (i === 0 && passedCount > 0) {
+                                                                return (
+                                                                    <tr key="toggle-passed" className="bg-gray-50/80 cursor-pointer hover:bg-gray-100 transition-colors" onClick={() => setIsPassedExpanded(true)}>
+                                                                        <td colSpan={4} className="px-6 py-3 text-center text-sm font-medium text-gray-500">
+                                                                            <div className="flex items-center justify-center gap-2">
+                                                                                <ChevronDown className="w-4 h-4" />
+                                                                                Show {passedCount} Passed Station{passedCount !== 1 ? 's' : ''}
+                                                                            </div>
+                                                                        </td>
+                                                                    </tr>
+                                                                );
+                                                            }
+                                                            return null;
+                                                        }
+
+                                                        if (isUpcomingGroup && !isUpcomingExpanded) {
+                                                            if (i === nextIdx + 1 && upcomingCount > 0) {
+                                                                return (
+                                                                    <tr key="toggle-upcoming" className="bg-gray-50/80 cursor-pointer hover:bg-gray-100 transition-colors" onClick={() => setIsUpcomingExpanded(true)}>
+                                                                        <td colSpan={4} className="px-6 py-3 text-center text-sm font-medium text-gray-500">
+                                                                            <div className="flex items-center justify-center gap-2">
+                                                                                <ChevronDown className="w-4 h-4" />
+                                                                                Show {upcomingCount} Intermediate Station{upcomingCount !== 1 ? 's' : ''}
+                                                                            </div>
+                                                                        </td>
+                                                                    </tr>
+                                                                );
+                                                            }
+                                                            return null;
+                                                        }
+
+                                                        if (isAnomaly) {
+                                                            if (liveAnomaly && liveAnomaly.isMainStation) return null; // Rendered on main stn
+                                                            const match = stn.stationName.match(/(Arrived at|Departed from|Crossed|Near)\s+([^(]+)\s*\(([^)]+)\)/i);
+                                                            const timeMatch = stn.stationName.match(/([0-9]{2}:[0-9]{2})/);
+
+                                                            let formattedName = match ? match[2].trim() : stn.stationName;
+                                                            let formattedCode = match ? match[3].trim() : "LIVE";
+                                                            let formattedAction = match ? match[1] : "Status";
+                                                            let formattedTime = timeMatch ? timeMatch[1] : "--:--";
+
+                                                            return (
+                                                                <tr key={`anomaly-${i}`} className="bg-orange-50 border-y border-orange-200">
+                                                                    <td colSpan={match ? 1 : 4} className={`px-6 py-4 font-medium relative ${match ? '' : 'text-center'}`}>
+                                                                        <div className={`flex items-center ${match ? 'gap-2' : 'justify-center gap-3'}`}>
+                                                                            <motion.span animate={{ x: [0, 3, 0] }} transition={{ repeat: Infinity, duration: 1.5 }} className={match ? "text-xl" : "text-3xl filter drop-shadow-sm"}>🚆</motion.span>
+                                                                            <span className={`text-orange-900 font-bold ${match ? '' : 'text-lg leading-tight'}`}>{formattedName}</span>
+                                                                            {match && <span className="bg-orange-200 text-orange-800 text-[10px] uppercase font-bold px-2 py-0.5 rounded-full shadow-sm ml-2 hidden sm:inline-block">Live Loc</span>}
+                                                                        </div>
+                                                                        {match && <span className="text-xs text-orange-700/80 pl-8 block mt-1">({formattedCode}) - {formattedAction}</span>}
+                                                                    </td>
+                                                                    {match && (
+                                                                        <>
+                                                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                                                <div className="flex flex-col">
+                                                                                    <span className="text-xs text-gray-400">Time:</span>
+                                                                                    <span className="font-bold text-orange-700">{formattedTime}</span>
+                                                                                </div>
+                                                                            </td>
+                                                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                                                <div className="flex flex-col">
+                                                                                    <span className="text-xs text-gray-400">Sch:</span>
+                                                                                    <span className="font-semibold text-gray-400">--:--</span>
+                                                                                </div>
+                                                                            </td>
+                                                                            <td className="px-6 py-4">
+                                                                                <span className="px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap inline-block shadow-sm bg-orange-100 text-orange-700 border border-orange-200">
+                                                                                    LIVE
+                                                                                </span>
+                                                                            </td>
+                                                                        </>
+                                                                    )}
+                                                                </tr>
+                                                            );
+                                                        }
 
                                                         const delay = stn.arrival?.delay || 'On Time';
                                                         const isLate = delay !== 'On Time' && delay !== '00:00' && !delay.includes('No Delay');
+                                                        const isNext = i === nextIdx;
+                                                        const isCurrentLiveStation = liveAnomaly?.isMainStation && liveAnomaly.code === stn.stationCode;
 
-                                                        const isPassed = i < activeIndex;
-                                                        const isCurrent = i === activeIndex;
-
-                                                        let rowClass = "active:bg-gray-50 transition-colors border-b border-gray-100";
+                                                        let rowClass = "active:bg-gray-50 transition-colors border-b border-gray-100 relative";
                                                         let textClass = "text-gray-900";
                                                         let subTextClass = "text-gray-500";
 
-                                                        if (isPassed) {
-                                                            rowClass = "bg-emerald-50/40";
-                                                            textClass = "text-gray-400";
-                                                            subTextClass = "text-gray-300";
-                                                        } else if (isCurrent) {
+                                                        if (isCurrentLiveStation) {
+                                                            rowClass = "bg-orange-50 border-y-2 border-orange-200 shadow-sm relative z-10";
+                                                            textClass = "font-extrabold text-orange-900";
+                                                            subTextClass = "text-orange-700 font-bold";
+                                                        } else if (i <= prevIdx && !isNext) {
+                                                            rowClass = "bg-emerald-50/40 relative";
+                                                            textClass = "text-gray-500 font-semibold";
+                                                            subTextClass = "text-gray-400";
+                                                        } else if (isNext) {
                                                             rowClass = "bg-gradient-to-r from-orange-600 to-orange-500 shadow-xl transform scale-[1.02] z-20 rounded-lg border-none relative my-1";
                                                             textClass = "text-white font-bold";
                                                             subTextClass = "text-orange-100";
@@ -277,44 +401,55 @@ export default function LiveStatusPage() {
 
                                                         return (
                                                             <tr key={i} className={rowClass}>
-                                                                <td className="px-6 py-4 font-medium">
+                                                                <td className="px-6 py-4 font-medium relative">
                                                                     <div className="flex flex-col">
                                                                         <div className="flex items-center gap-2">
+                                                                            {isCurrentLiveStation && (
+                                                                                <motion.span animate={{ x: [0, 3, 0] }} transition={{ repeat: Infinity, duration: 1.5 }} className="text-xl">🚆</motion.span>
+                                                                            )}
                                                                             <span className={textClass}>{stn.stationName}</span>
-                                                                            {isCurrent && (
+                                                                            {isCurrentLiveStation && (
+                                                                                <span className="bg-orange-200 text-orange-800 text-[10px] uppercase font-bold px-2 py-0.5 rounded-full shadow-sm ml-2 hidden sm:inline-block">Live Loc</span>
+                                                                            )}
+                                                                            {isNext && (
                                                                                 <span className="animate-pulse bg-white text-orange-600 text-[10px] uppercase font-extrabold px-2 py-0.5 rounded-full shadow-sm ml-2">
-                                                                                    Current
+                                                                                    Next Stop
                                                                                 </span>
                                                                             )}
-                                                                            {isPassed && (
+                                                                            {i <= prevIdx && !isNext && !isCurrentLiveStation && (
                                                                                 <span className="text-emerald-600/60 text-[10px] uppercase font-bold px-2 py-0.5 rounded-full border border-emerald-200 hidden sm:inline-block ml-2">
                                                                                     Passed
                                                                                 </span>
                                                                             )}
                                                                         </div>
                                                                         <span className={`text-xs ${subTextClass}`}>({stn.stationCode})</span>
+                                                                        {isCurrentLiveStation && (
+                                                                            <span className="text-[10px] text-orange-700/80 block mt-1 font-bold">{liveAnomaly.action} at {liveAnomaly.time}</span>
+                                                                        )}
                                                                     </div>
                                                                 </td>
                                                                 <td className={`px-6 py-4 whitespace-nowrap text-sm ${textClass}`}>
                                                                     <div className="flex flex-col">
-                                                                        <span className={`text-xs ${isCurrent ? 'text-orange-100' : 'text-gray-400'}`}>Sch: {stn.arrival?.scheduled}</span>
+                                                                        <span className={`text-xs ${isNext ? 'text-orange-100' : 'text-gray-400'}`}>Sch: {stn.arrival?.scheduled}</span>
                                                                         <span className="font-semibold">{stn.arrival?.actual}</span>
                                                                     </div>
                                                                 </td>
                                                                 <td className={`px-6 py-4 whitespace-nowrap text-sm ${textClass}`}>
                                                                     <div className="flex flex-col">
-                                                                        <span className={`text-xs ${isCurrent ? 'text-orange-100' : 'text-gray-400'}`}>{stn.arrival?.actual === 'SRC' ? '' : `Sch: ${stn.departure?.scheduled}`}</span>
+                                                                        <span className={`text-xs ${isNext ? 'text-orange-100' : 'text-gray-400'}`}>{stn.arrival?.actual === 'SRC' ? '' : `Sch: ${stn.departure?.scheduled}`}</span>
                                                                         <span>{stn.departure?.actual}</span>
                                                                     </div>
                                                                 </td>
                                                                 <td className="px-6 py-4">
-                                                                    <span className={`px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap inline-block shadow-sm ${isCurrent
-                                                                        ? 'bg-white text-orange-700'
-                                                                        : (!isLate
-                                                                            ? 'bg-emerald-100 text-emerald-700 border border-emerald-200'
-                                                                            : 'bg-rose-100 text-rose-700 border border-rose-200')
+                                                                    <span className={`px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap inline-block shadow-sm ${isCurrentLiveStation
+                                                                        ? 'bg-orange-100 text-orange-700 border border-orange-200'
+                                                                        : (isNext
+                                                                            ? 'bg-white text-orange-700'
+                                                                            : (!isLate
+                                                                                ? 'bg-emerald-100 text-emerald-700 border border-emerald-200'
+                                                                                : 'bg-rose-100 text-rose-700 border border-rose-200'))
                                                                         }`}>
-                                                                        {delay}
+                                                                        {isCurrentLiveStation ? 'LIVE' : delay}
                                                                     </span>
                                                                 </td>
                                                             </tr>
@@ -328,99 +463,155 @@ export default function LiveStatusPage() {
                                     {/* Mobile Card View */}
                                     <div className="md:hidden flex flex-col divide-y divide-gray-100 p-2 space-y-2 bg-gray-50/50">
                                         {(() => {
-                                            let activeIndex = -1;
-                                            let statusTimeObj: Date | null = null;
-                                            const currentYear = new Date().getFullYear();
-
-                                            if (data.statusNote) {
-                                                const timeMatch = data.statusNote.match(/(\d{1,2}:\d{2})\s+(\d{1,2}-[A-Za-z]{3})/);
-                                                if (timeMatch) {
-                                                    statusTimeObj = new Date(`${timeMatch[2]}-${currentYear} ${timeMatch[1]}`);
-                                                }
-                                            }
-
-                                            if (statusTimeObj) {
-                                                const found = data.stations.findIndex((stn: any) => {
-                                                    if (!stn.stationCode) return false;
-                                                    let timeStr = stn.departure?.actual || stn.arrival?.actual;
-                                                    if (!timeStr || timeStr.includes('SRC') || timeStr.includes('DST')) return false;
-                                                    timeStr = timeStr.replace(/\*/g, '').trim();
-                                                    const parts = timeStr.split(' ');
-                                                    if (parts.length < 2) return false;
-                                                    const stnDate = new Date(`${parts[1]}-${currentYear} ${parts[0]}`);
-                                                    if (isNaN(stnDate.getTime())) return false;
-                                                    return stnDate > statusTimeObj;
-                                                });
-                                                if (found !== -1) activeIndex = found;
-                                                else if (data.stations.length > 0) activeIndex = data.stations.length - 1;
-                                            } else {
-                                                const match = data.statusNote?.match(/\(([A-Z]+)\)/);
-                                                if (match && match[1]) {
-                                                    const idx = data.stations.findIndex((s: any) => s.stationCode === match[1]);
-                                                    if (idx !== -1) {
-                                                        if (data.statusNote?.toLowerCase().includes('departed')) activeIndex = idx + 1;
-                                                        else activeIndex = idx;
-                                                    }
-                                                }
-                                            }
-
-                                            if (activeIndex >= data.stations.length) activeIndex = data.stations.length - 1;
-                                            if (activeIndex < 0) activeIndex = 0;
-
                                             return data.stations.map((stn: any, i: number) => {
-                                                if (!stn.stationCode) return null;
+                                                const isAnomaly = !stn.stationCode;
+                                                const isPassedGroup = i < prevIdx && !isAnomaly;
+                                                const isUpcomingGroup = i > nextIdx && i < destinationIdx && !isAnomaly;
+
+                                                if (isPassedGroup && !isPassedExpanded) {
+                                                    if (i === 0 && passedCount > 0) {
+                                                        return (
+                                                            <div key="toggle-passed" className="bg-gray-100 rounded-lg p-3 flex justify-center items-center cursor-pointer mb-2" onClick={() => setIsPassedExpanded(true)}>
+                                                                <span className="text-sm font-semibold text-gray-500 flex items-center gap-1"><ChevronDown className="w-4 h-4" /> Show {passedCount} Passed Station{passedCount !== 1 ? 's' : ''}</span>
+                                                            </div>
+                                                        );
+                                                    }
+                                                    return null;
+                                                }
+
+                                                if (isUpcomingGroup && !isUpcomingExpanded) {
+                                                    if (i === nextIdx + 1 && upcomingCount > 0) {
+                                                        return (
+                                                            <div key="toggle-upcoming" className="bg-gray-100 rounded-lg p-3 flex justify-center items-center cursor-pointer mt-2" onClick={() => setIsUpcomingExpanded(true)}>
+                                                                <span className="text-sm font-semibold text-gray-500 flex items-center gap-1"><ChevronDown className="w-4 h-4" /> Show {upcomingCount} Intermediate Station{upcomingCount !== 1 ? 's' : ''}</span>
+                                                            </div>
+                                                        );
+                                                    }
+                                                    return null;
+                                                }
+
+                                                if (isAnomaly) {
+                                                    if (liveAnomaly && liveAnomaly.isMainStation) return null; // Rendered on main stn
+                                                    const match = stn.stationName.match(/(Arrived at|Departed from|Crossed|Near)\s+([^(]+)\s*\(([^)]+)\)/i);
+                                                    const timeMatch = stn.stationName.match(/([0-9]{2}:[0-9]{2})/);
+
+                                                    let formattedName = match ? match[2].trim() : stn.stationName;
+                                                    let formattedCode = match ? match[3].trim() : "LIVE";
+                                                    let formattedAction = match ? match[1] : "Status";
+                                                    let formattedTime = timeMatch ? timeMatch[1] : "--:--";
+
+                                                    if (!match) {
+                                                        return (
+                                                            <div key={`anomaly-${i}`} className="bg-orange-50 rounded-xl p-4 border-2 border-orange-200 shadow-sm flex items-center justify-center relative overflow-hidden my-2">
+                                                                <motion.div animate={{ x: [0, 5, 0] }} transition={{ repeat: Infinity, duration: 1.5 }} className="mr-3 z-10">
+                                                                    <span className="text-3xl filter drop-shadow-sm">🚆</span>
+                                                                </motion.div>
+                                                                <span className="text-orange-900 font-bold text-sm leading-tight text-center z-10">{stn.stationName}</span>
+                                                                <div className="absolute inset-0 opacity-[0.03] bg-[rgba(0,0,0,1)] z-0" style={{ backgroundImage: "repeating-linear-gradient(45deg, transparent, transparent 10px, #000 10px, #000 20px)" }} />
+                                                            </div>
+                                                        );
+                                                    }
+
+                                                    return (
+                                                        <div key={`anomaly-${i}`} className="bg-orange-50 p-4 rounded-xl shadow-md border-2 border-orange-400 relative overflow-hidden mt-2 z-10 scale-[1.02]">
+                                                            <div className="absolute top-0 right-0 bg-orange-500 text-white text-[9px] font-bold px-2 py-0.5 rounded-bl shadow-sm z-10 animate-pulse">
+                                                                LIVE LOC
+                                                            </div>
+
+                                                            <div className="flex justify-between items-start mb-2 mt-0.5">
+                                                                <div className="flex items-start gap-2">
+                                                                    <motion.span animate={{ x: [0, 3, 0] }} transition={{ repeat: Infinity, duration: 1.5 }} className="text-2xl mt-1">🚆</motion.span>
+                                                                    <div>
+                                                                        <h4 className="text-base font-extrabold text-orange-900 leading-tight">{formattedName}</h4>
+                                                                        <span className="text-[10px] text-orange-700 uppercase font-bold tracking-wider">({formattedCode}) - {formattedAction}</span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                            <div className="grid grid-cols-2 gap-2 p-2 rounded-lg bg-orange-100/50 border border-orange-200">
+                                                                <div>
+                                                                    <div className="text-[9px] uppercase font-bold text-orange-600 mb-0.5">{formattedAction} Time</div>
+                                                                    <div className="text-sm text-orange-900 font-bold">{formattedTime}</div>
+                                                                </div>
+                                                                <div className="flex items-center justify-end">
+                                                                    <span className="px-2 py-1 rounded text-[10px] font-bold shadow-sm whitespace-nowrap bg-orange-500 text-white">
+                                                                        LIVE
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    );
+                                                }
 
                                                 const delay = stn.arrival?.delay || 'On Time';
                                                 const isLate = delay !== 'On Time' && delay !== '00:00' && !delay.includes('No Delay');
-                                                const isPassed = i < activeIndex;
-                                                const isCurrent = i === activeIndex;
+                                                const isNext = i === nextIdx;
+                                                const isCurrentLiveStation = liveAnomaly?.isMainStation && liveAnomaly.code === stn.stationCode;
 
                                                 let cardClass = "bg-white p-4 rounded-xl border border-gray-100 shadow-sm relative overflow-hidden";
                                                 let textClass = "text-gray-900";
                                                 let subTextClass = "text-gray-500";
 
-                                                if (isPassed) {
-                                                    cardClass = "bg-emerald-50/20 p-4 rounded-xl border border-emerald-50 relative opacity-70";
+                                                if (isCurrentLiveStation) {
+                                                    cardClass = "bg-orange-50 p-4 rounded-xl border-2 border-orange-200 shadow-sm relative overflow-hidden mt-2 z-10 scale-[1.02]";
+                                                    textClass = "text-orange-900 font-extrabold";
+                                                    subTextClass = "text-orange-700 font-bold";
+                                                } else if (i <= prevIdx && !isNext) {
+                                                    cardClass = "bg-emerald-50/20 p-4 rounded-xl border border-emerald-50 relative opacity-70 mt-2";
                                                     textClass = "text-gray-500";
                                                     subTextClass = "text-gray-400";
-                                                } else if (isCurrent) {
-                                                    cardClass = "bg-gradient-to-br from-orange-500 to-orange-600 p-4 rounded-xl shadow-lg relative transform scale-[1.02] border border-orange-400";
+                                                } else if (isNext) {
+                                                    cardClass = "bg-gradient-to-br from-orange-500 to-orange-600 p-4 rounded-xl shadow-lg relative transform scale-[1.02] border border-orange-400 mt-2 z-10";
                                                     textClass = "text-white font-bold";
                                                     subTextClass = "text-orange-100";
                                                 }
 
                                                 return (
                                                     <div key={i} className={cardClass}>
-                                                        {isCurrent && (
+                                                        {isNext && (
                                                             <div className="absolute top-0 right-0 bg-white text-orange-600 text-[9px] font-bold px-2 py-0.5 rounded-bl shadow-sm z-10 animate-pulse">
-                                                                CURRENT
+                                                                NEXT
                                                             </div>
                                                         )}
                                                         <div className="flex justify-between items-start mb-2 mt-0.5">
                                                             <div>
-                                                                <h4 className={`text-sm leading-tight ${textClass}`}>{stn.stationName}</h4>
+                                                                <div className="flex items-center gap-2">
+                                                                    {isCurrentLiveStation && (
+                                                                        <motion.span animate={{ x: [0, 3, 0] }} transition={{ repeat: Infinity, duration: 1.5 }} className="text-xl">🚆</motion.span>
+                                                                    )}
+                                                                    <h4 className={`text-sm leading-tight ${textClass}`}>{stn.stationName}</h4>
+                                                                    {isCurrentLiveStation && (
+                                                                        <span className="bg-orange-200 text-orange-800 text-[10px] uppercase font-bold px-2 py-0.5 rounded-full shadow-sm">Live Loc</span>
+                                                                    )}
+                                                                </div>
                                                                 <span className={`text-[10px] ${subTextClass} uppercase font-semibold tracking-wider`}>{stn.stationCode}</span>
+                                                                {isCurrentLiveStation && (
+                                                                    <span className="text-[10px] text-orange-700/80 block mt-0.5 font-bold">{liveAnomaly.action} at {liveAnomaly.time}</span>
+                                                                )}
                                                             </div>
-                                                            <div className={`px-2 py-1 rounded text-[10px] font-bold shadow-sm whitespace-nowrap ${isCurrent
-                                                                ? 'bg-white/20 text-white border border-white/30'
-                                                                : (!isLate
-                                                                    ? 'bg-emerald-100 text-emerald-700'
-                                                                    : 'bg-rose-100 text-rose-700')}`}>
-                                                                {delay}
+                                                            <div className={`px-2 py-1 rounded text-[10px] font-bold shadow-sm whitespace-nowrap mt-1 ${isCurrentLiveStation
+                                                                ? 'bg-orange-100 text-orange-700 border border-orange-200'
+                                                                : (isNext
+                                                                    ? 'bg-white/20 text-white border border-white/30'
+                                                                    : (!isLate
+                                                                        ? 'bg-emerald-100 text-emerald-700'
+                                                                        : 'bg-rose-100 text-rose-700'))
+                                                                }`}>
+                                                                {isCurrentLiveStation ? 'LIVE' : delay}
                                                             </div>
                                                         </div>
 
-                                                        <div className={`grid grid-cols-2 gap-2 p-2 rounded-lg ${isCurrent ? 'bg-orange-700/30' : 'bg-gray-50'} border ${isCurrent ? 'border-orange-400' : 'border-gray-100/50'}`}>
+                                                        <div className={`grid grid-cols-2 gap-2 p-2 rounded-lg ${isNext ? 'bg-orange-700/30' : 'bg-gray-50'} border ${isNext ? 'border-orange-400' : 'border-gray-100/50'}`}>
                                                             <div>
-                                                                <div className={`text-[9px] uppercase font-bold ${isCurrent ? 'text-orange-200' : 'text-gray-400'} mb-0.5`}>Arrival</div>
-                                                                <div className={`text-xs ${isCurrent ? 'text-white' : 'text-gray-900'} font-medium`}>Act: {stn.arrival?.actual}</div>
-                                                                <div className={`text-[10px] mt-0.5 ${isCurrent ? 'text-orange-100' : 'text-gray-500'}`}>Sch: {stn.arrival?.scheduled}</div>
+                                                                <div className={`text-[9px] uppercase font-bold ${isNext ? 'text-orange-200' : 'text-gray-400'} mb-0.5`}>Arrival</div>
+                                                                <div className={`text-xs ${isNext ? 'text-white' : 'text-gray-900'} font-medium`}>Act: {stn.arrival?.actual}</div>
+                                                                <div className={`text-[10px] mt-0.5 ${isNext ? 'text-orange-100' : 'text-gray-500'}`}>Sch: {stn.arrival?.scheduled}</div>
                                                             </div>
                                                             <div>
-                                                                <div className={`text-[9px] uppercase font-bold ${isCurrent ? 'text-orange-200' : 'text-gray-400'} mb-0.5`}>Departure</div>
-                                                                <div className={`text-xs ${isCurrent ? 'text-white' : 'text-gray-900'} font-medium`}>Act: {stn.departure?.actual}</div>
+                                                                <div className={`text-[9px] uppercase font-bold ${isNext ? 'text-orange-200' : 'text-gray-400'} mb-0.5`}>Departure</div>
+                                                                <div className={`text-xs ${isNext ? 'text-white' : 'text-gray-900'} font-medium`}>Act: {stn.departure?.actual}</div>
                                                                 {stn.arrival?.actual !== 'SRC' && (
-                                                                    <div className={`text-[10px] mt-0.5 ${isCurrent ? 'text-orange-100' : 'text-gray-500'}`}>Sch: {stn.departure?.scheduled}</div>
+                                                                    <div className={`text-[10px] mt-0.5 ${isNext ? 'text-orange-100' : 'text-gray-500'}`}>Sch: {stn.departure?.scheduled}</div>
                                                                 )}
                                                             </div>
                                                         </div>

@@ -48,6 +48,25 @@ export default function LiveStationPage() {
         return () => clearTimeout(timeoutId);
     }, [searchQuery]);
 
+    // Auto-refresh every 2 minutes if viewing live station
+    useEffect(() => {
+        let interval: NodeJS.Timeout;
+        if (data && stnCode) {
+            interval = setInterval(async () => {
+                try {
+                    const res = await fetch(`/api/train/station/${stnCode}`);
+                    const json = await res.json();
+                    if (json.success) {
+                        setData(json.data);
+                    }
+                } catch (err) {
+                    console.error("Auto-fetch error:", err);
+                }
+            }, 120000); // 2 minutes
+        }
+        return () => clearInterval(interval);
+    }, [data, stnCode]);
+
     const handleSearch = async (codeToSearch?: string) => {
         const code = codeToSearch || stnCode;
         if (!code || code.length < 2) {
@@ -186,7 +205,7 @@ export default function LiveStationPage() {
                     </div>
 
                     {error && (
-                        <div className="p-4 bg-red-50 text-red-700 rounded-lg border border-red-200">
+                        <div className="p-4 bg-red-50 text-red-700 rounded-lg border border-red-200 mt-8">
                             {error}
                         </div>
                     )}
@@ -195,8 +214,18 @@ export default function LiveStationPage() {
                         <motion.div
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
-                            className="space-y-6 mt-8"
+                            className="space-y-6 mt-6"
                         >
+                            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 bg-gray-50 px-4 py-3 rounded-xl border border-gray-200">
+                                <h2 className="text-base sm:text-lg font-bold text-gray-800">
+                                    Trains in Next 2-4 Hours
+                                </h2>
+                                <div className="flex items-center gap-2 text-xs font-semibold text-emerald-700 bg-emerald-100/50 px-3 py-1.5 rounded-full border border-emerald-200 w-fit">
+                                    <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse shadow-sm shadow-emerald-400" />
+                                    Live Auto-Update Active (every 2 min)
+                                </div>
+                            </div>
+
                             {/* Assuming data is a list of trains. Adjusting based on likely API structure or logging to debug later */}
                             {Array.isArray(data) && data.length > 0 ? (
                                 <div className="border rounded-xl flex flex-col overflow-hidden">

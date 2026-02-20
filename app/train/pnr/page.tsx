@@ -81,7 +81,7 @@ export default function PNRStatusPage() {
                     </form>
 
                     {error && (
-                        <div className="mt-6 p-4 bg-red-50 text-red-700 rounded-lg border border-red-200">
+                        <div className="mt-6 p-4 bg-red-50 text-red-700 rounded-lg border border-red-200 mt-8">
                             {error}
                         </div>
                     )}
