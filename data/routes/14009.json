@@ -1,0 +1,755 @@
+{
+  "14009": {
+    "CWA": [
+      {
+        "stnCode": "GNW",
+        "stnName": "Gangiwara",
+        "arrival": "10:35",
+        "departure": "10:35"
+      },
+      {
+        "stnCode": "KUX",
+        "stnName": "Khirsadoh Junction",
+        "arrival": "10:44",
+        "departure": "10:44"
+      },
+      {
+        "stnCode": "PUX",
+        "stnName": "Parasia",
+        "arrival": "10:58",
+        "departure": "11:00"
+      },
+      {
+        "stnCode": "IKR",
+        "stnName": "Iklehra",
+        "arrival": "11:10",
+        "departure": "11:10"
+      },
+      {
+        "stnCode": "PCLI",
+        "stnName": "Palachauri",
+        "arrival": "11:16",
+        "departure": "11:16"
+      },
+      {
+        "stnCode": "JNO",
+        "stnName": "Junnor Deo",
+        "arrival": "11:29",
+        "departure": "11:30"
+      },
+      {
+        "stnCode": "HRG",
+        "stnName": "Hirdagarh",
+        "arrival": "11:41",
+        "departure": "11:41"
+      },
+      {
+        "stnCode": "MKDN",
+        "stnName": "Morkadhana",
+        "arrival": "11:49",
+        "departure": "11:49"
+      },
+      {
+        "stnCode": "NVG",
+        "stnName": "Nawagaon",
+        "arrival": "11:58",
+        "departure": "11:58"
+      },
+      {
+        "stnCode": "BQM",
+        "stnName": "Barelipur",
+        "arrival": "12:05",
+        "departure": "12:05"
+      },
+      {
+        "stnCode": "BXY",
+        "stnName": "Bordhal",
+        "arrival": "12:09",
+        "departure": "12:09"
+      },
+      {
+        "stnCode": "BCRD",
+        "stnName": "Barchi Road",
+        "arrival": "12:14",
+        "departure": "12:14"
+      },
+      {
+        "stnCode": "JMV",
+        "stnName": "Jambara",
+        "arrival": "12:24",
+        "departure": "12:24"
+      }
+    ],
+    "AMLA": [
+      {
+        "stnCode": "BYS",
+        "stnName": "BARSALI",
+        "arrival": "13:01",
+        "departure": "13:01"
+      },
+      {
+        "stnCode": "MALK",
+        "stnName": "MALKAPUR ROAD",
+        "arrival": "13:08",
+        "departure": "13:08"
+      },
+      {
+        "stnCode": "BZU",
+        "stnName": "BETUL",
+        "arrival": "13:14",
+        "departure": "13:16"
+      },
+      {
+        "stnCode": "MJY",
+        "stnName": "MARAMJHIRI",
+        "arrival": "13:24",
+        "departure": "13:24"
+      },
+      {
+        "stnCode": "DHQ",
+        "stnName": "DHARAKHOH",
+        "arrival": "13:38",
+        "departure": "13:38"
+      },
+      {
+        "stnCode": "GDYA",
+        "stnName": "GHORADONGRI",
+        "arrival": "13:54",
+        "departure": "13:56"
+      },
+      {
+        "stnCode": "BBTR",
+        "stnName": "BARBATPUR",
+        "arrival": "14:06",
+        "departure": "14:06"
+      },
+      {
+        "stnCode": "DOH",
+        "stnName": "DHODRA MOHAR",
+        "arrival": "14:15",
+        "departure": "14:15"
+      },
+      {
+        "stnCode": "KQE",
+        "stnName": "KALA AKHAR",
+        "arrival": "14:28",
+        "departure": "14:28"
+      },
+      {
+        "stnCode": "SAHL",
+        "stnName": "SAHELI",
+        "arrival": "14:37",
+        "departure": "14:37"
+      },
+      {
+        "stnCode": "KRTH",
+        "stnName": "KIRATGARH",
+        "arrival": "14:47",
+        "departure": "14:47"
+      }
+    ],
+    "ET": [
+      {
+        "stnCode": "PRKD",
+        "stnName": "POWERKHEDA",
+        "arrival": "15:18",
+        "departure": "15:18"
+      },
+      {
+        "stnCode": "HBD",
+        "stnName": "HOSHANGABAD",
+        "arrival": "15:28",
+        "departure": "15:30"
+      },
+      {
+        "stnCode": "BNI",
+        "stnName": "BUDNI",
+        "arrival": "15:38",
+        "departure": "15:38"
+      },
+      {
+        "stnCode": "BKA",
+        "stnName": "BARKHERA",
+        "arrival": "15:59",
+        "departure": "15:59"
+      },
+      {
+        "stnCode": "ODG",
+        "stnName": "OBAIDULLA GANJ",
+        "arrival": "16:12",
+        "departure": "16:12"
+      },
+      {
+        "stnCode": "MDDP",
+        "stnName": "MANDI DIP",
+        "arrival": "16:27",
+        "departure": "16:27"
+      },
+      {
+        "stnCode": "MSO",
+        "stnName": "MISROD",
+        "arrival": "16:38",
+        "departure": "16:38"
+      },
+      {
+        "stnCode": "HBJ",
+        "stnName": "HABIBGANJ",
+        "arrival": "16:45",
+        "departure": "16:47"
+      }
+    ],
+    "BPL": [
+      {
+        "stnCode": "SUW",
+        "stnName": "SUKHISEWANIYAN",
+        "arrival": "17:18",
+        "departure": "17:18"
+      },
+      {
+        "stnCode": "BVB",
+        "stnName": "BHADBHADAGHAT",
+        "arrival": "17:24",
+        "departure": "17:24"
+      },
+      {
+        "stnCode": "DWG",
+        "stnName": "DEWANGANJ",
+        "arrival": "17:30",
+        "departure": "17:30"
+      },
+      {
+        "stnCode": "SMT",
+        "stnName": "SALAMATPUR",
+        "arrival": "17:37",
+        "departure": "17:37"
+      },
+      {
+        "stnCode": "SCI",
+        "stnName": "SANCHI",
+        "arrival": "17:42",
+        "departure": "17:42"
+      },
+      {
+        "stnCode": "BHS",
+        "stnName": "VIDISHA",
+        "arrival": "17:48",
+        "departure": "17:50"
+      },
+      {
+        "stnCode": "SORI",
+        "stnName": "SORAI",
+        "arrival": "17:57",
+        "departure": "17:57"
+      },
+      {
+        "stnCode": "SUMR",
+        "stnName": "SUMER",
+        "arrival": "18:14",
+        "departure": "18:14"
+      },
+      {
+        "stnCode": "GLG",
+        "stnName": "GULABHGANJ",
+        "arrival": "18:27",
+        "departure": "18:27"
+      },
+      {
+        "stnCode": "PAI",
+        "stnName": "PABAI",
+        "arrival": "18:44",
+        "departure": "18:44"
+      },
+      {
+        "stnCode": "BAQ",
+        "stnName": "GANJ BASODA",
+        "arrival": "19:00",
+        "departure": "19:00"
+      },
+      {
+        "stnCode": "RKRI",
+        "stnName": "RAO KHEDI",
+        "arrival": "19:06",
+        "departure": "19:06"
+      },
+      {
+        "stnCode": "BET",
+        "stnName": "BARETH",
+        "arrival": "19:18",
+        "departure": "19:18"
+      },
+      {
+        "stnCode": "KAH",
+        "stnName": "KALHAR",
+        "arrival": "19:35",
+        "departure": "19:35"
+      },
+      {
+        "stnCode": "MABA",
+        "stnName": "MANDI BAMORA",
+        "arrival": "19:51",
+        "departure": "19:51"
+      },
+      {
+        "stnCode": "KIKA",
+        "stnName": "KURWAI KETHORA",
+        "arrival": "20:05",
+        "departure": "20:05"
+      }
+    ],
+    "BINA": [
+      {
+        "stnCode": "AGD",
+        "stnName": "AGASOD",
+        "arrival": "20:31",
+        "departure": "20:31"
+      },
+      {
+        "stnCode": "KOA",
+        "stnName": "KARONDA",
+        "arrival": "20:39",
+        "departure": "20:39"
+      },
+      {
+        "stnCode": "MXS",
+        "stnName": "MOHASA",
+        "arrival": "20:43",
+        "departure": "20:43"
+      },
+      {
+        "stnCode": "DUA",
+        "stnName": "DHAURA",
+        "arrival": "20:49",
+        "departure": "20:49"
+      },
+      {
+        "stnCode": "JLN",
+        "stnName": "JAKHALAUN",
+        "arrival": "20:58",
+        "departure": "20:58"
+      },
+      {
+        "stnCode": "JRO",
+        "stnName": "JIRON",
+        "arrival": "21:03",
+        "departure": "21:03"
+      },
+      {
+        "stnCode": "LAR",
+        "stnName": "LALITPUR",
+        "arrival": "21:09",
+        "departure": "21:11"
+      },
+      {
+        "stnCode": "DWA",
+        "stnName": "DAILWARA",
+        "arrival": "21:20",
+        "departure": "21:20"
+      },
+      {
+        "stnCode": "JHA",
+        "stnName": "JAKHAURA",
+        "arrival": "21:28",
+        "departure": "21:28"
+      },
+      {
+        "stnCode": "BJA",
+        "stnName": "BIJROTHA",
+        "arrival": "21:35",
+        "departure": "21:35"
+      },
+      {
+        "stnCode": "TBT",
+        "stnName": "TALBAHAT",
+        "arrival": "21:44",
+        "departure": "21:44"
+      },
+      {
+        "stnCode": "MZX",
+        "stnName": "MATATILA",
+        "arrival": "21:49",
+        "departure": "21:49"
+      },
+      {
+        "stnCode": "BZY",
+        "stnName": "BASAI",
+        "arrival": "21:55",
+        "departure": "21:55"
+      },
+      {
+        "stnCode": "BPW",
+        "stnName": "BURHPURA",
+        "arrival": "22:01",
+        "departure": "22:01"
+      },
+      {
+        "stnCode": "BAB",
+        "stnName": "BABINA",
+        "arrival": "22:05",
+        "departure": "22:05"
+      },
+      {
+        "stnCode": "KHJ",
+        "stnName": "KHAJRAHA",
+        "arrival": "22:12",
+        "departure": "22:12"
+      },
+      {
+        "stnCode": "BJI",
+        "stnName": "BIJAULI",
+        "arrival": "22:19",
+        "departure": "22:19"
+      }
+    ],
+    "JHS": [
+      {
+        "stnCode": "KRQ",
+        "stnName": "KARARI",
+        "arrival": "22:44",
+        "departure": "22:44"
+      },
+      {
+        "stnCode": "DAA",
+        "stnName": "DATIA",
+        "arrival": "22:55",
+        "departure": "22:55"
+      },
+      {
+        "stnCode": "SOR",
+        "stnName": "SONAGIR",
+        "arrival": "23:04",
+        "departure": "23:04"
+      },
+      {
+        "stnCode": "KTRA",
+        "stnName": "KOTRA",
+        "arrival": "23:11",
+        "departure": "23:11"
+      },
+      {
+        "stnCode": "DBA",
+        "stnName": "DABRA",
+        "arrival": "23:18",
+        "departure": "23:18"
+      },
+      {
+        "stnCode": "SMTL",
+        "stnName": "SIMARIATAL",
+        "arrival": "23:26",
+        "departure": "23:26"
+      },
+      {
+        "stnCode": "AEH",
+        "stnName": "ANANT PAITH",
+        "arrival": "23:34",
+        "departure": "23:34"
+      },
+      {
+        "stnCode": "ARI",
+        "stnName": "ANTRI",
+        "arrival": "23:39",
+        "departure": "23:39"
+      },
+      {
+        "stnCode": "STLI",
+        "stnName": "SITHOULI",
+        "arrival": "23:44",
+        "departure": "23:44"
+      }
+    ],
+    "GWL": [
+      {
+        "stnCode": "BLNR",
+        "stnName": "BIRLANAGAR",
+        "arrival": "23:58",
+        "departure": "23:58"
+      },
+      {
+        "stnCode": "RRU",
+        "stnName": "RAYARU",
+        "arrival": "00:10",
+        "departure": "00:10"
+      },
+      {
+        "stnCode": "BAO",
+        "stnName": "BANMOR",
+        "arrival": "00:16",
+        "departure": "00:16"
+      },
+      {
+        "stnCode": "NUB",
+        "stnName": "NURABAD",
+        "arrival": "00:23",
+        "departure": "00:23"
+      },
+      {
+        "stnCode": "SANK",
+        "stnName": "SANK",
+        "arrival": "00:27",
+        "departure": "00:27"
+      },
+      {
+        "stnCode": "MRA",
+        "stnName": "MORENA",
+        "arrival": "00:38",
+        "departure": "00:38"
+      },
+      {
+        "stnCode": "SIKD",
+        "stnName": "SIKRODA KWANRI",
+        "arrival": "00:48",
+        "departure": "00:48"
+      },
+      {
+        "stnCode": "HET",
+        "stnName": "HETAMPUR",
+        "arrival": "00:54",
+        "departure": "00:54"
+      },
+      {
+        "stnCode": "DHO",
+        "stnName": "DHAULPUR",
+        "arrival": "01:08",
+        "departure": "01:08"
+      },
+      {
+        "stnCode": "MIA",
+        "stnName": "MANIA",
+        "arrival": "01:22",
+        "departure": "01:22"
+      },
+      {
+        "stnCode": "JJ",
+        "stnName": "JAJAU",
+        "arrival": "01:38",
+        "departure": "01:38"
+      },
+      {
+        "stnCode": "BHA",
+        "stnName": "BHANDAI",
+        "arrival": "01:55",
+        "departure": "01:55"
+      }
+    ],
+    "AGC": [
+      {
+        "stnCode": "RKM",
+        "stnName": "RAJA KI MANDI",
+        "arrival": "02:14",
+        "departure": "02:14"
+      },
+      {
+        "stnCode": "BFP",
+        "stnName": "BILOCHPURA AGRA",
+        "arrival": "02:15",
+        "departure": "02:15"
+      },
+      {
+        "stnCode": "RNKA",
+        "stnName": "RUNKUTA",
+        "arrival": "02:24",
+        "departure": "02:24"
+      },
+      {
+        "stnCode": "KXM",
+        "stnName": "KITHAM",
+        "arrival": "02:33",
+        "departure": "02:33"
+      },
+      {
+        "stnCode": "FHT",
+        "stnName": "FARAH TOWN",
+        "arrival": "02:42",
+        "departure": "02:42"
+      },
+      {
+        "stnCode": "FAR",
+        "stnName": "FARAH",
+        "arrival": "02:44",
+        "departure": "02:44"
+      },
+      {
+        "stnCode": "BAD",
+        "stnName": "BAAD",
+        "arrival": "02:53",
+        "departure": "02:53"
+      },
+      {
+        "stnCode": "MTJ",
+        "stnName": "MATHURA JN",
+        "arrival": "03:02",
+        "departure": "03:05"
+      },
+      {
+        "stnCode": "BTSR",
+        "stnName": "BHUTESHWAR",
+        "arrival": "03:08",
+        "departure": "03:08"
+      },
+      {
+        "stnCode": "VRBD",
+        "stnName": "VRINDABAN ROAD",
+        "arrival": "03:16",
+        "departure": "03:16"
+      },
+      {
+        "stnCode": "AJH",
+        "stnName": "AJHAI",
+        "arrival": "03:28",
+        "departure": "03:28"
+      },
+      {
+        "stnCode": "CHJ",
+        "stnName": "CHATA",
+        "arrival": "03:39",
+        "departure": "03:39"
+      },
+      {
+        "stnCode": "KSV",
+        "stnName": "KOSI KALAN",
+        "arrival": "03:50",
+        "departure": "03:50"
+      },
+      {
+        "stnCode": "HDL",
+        "stnName": "HODAL",
+        "arrival": "04:04",
+        "departure": "04:04"
+      },
+      {
+        "stnCode": "SHLK",
+        "stnName": "SHOLAKA",
+        "arrival": "04:15",
+        "departure": "04:15"
+      },
+      {
+        "stnCode": "RDE",
+        "stnName": "RUNDHI",
+        "arrival": "04:27",
+        "departure": "04:27"
+      },
+      {
+        "stnCode": "PWL",
+        "stnName": "PALWAL",
+        "arrival": "04:37",
+        "departure": "04:37"
+      },
+      {
+        "stnCode": "AST",
+        "stnName": "ASAOTI",
+        "arrival": "04:50",
+        "departure": "04:50"
+      },
+      {
+        "stnCode": "BVH",
+        "stnName": "BALLABGARH",
+        "arrival": "05:00",
+        "departure": "05:00"
+      },
+      {
+        "stnCode": "FDN",
+        "stnName": "FARIDABAD NEW TOWN",
+        "arrival": "05:05",
+        "departure": "05:05"
+      },
+      {
+        "stnCode": "FDB",
+        "stnName": "FARIDABAD",
+        "arrival": "05:09",
+        "departure": "05:09"
+      },
+      {
+        "stnCode": "TKD",
+        "stnName": "TUGLAKABAD",
+        "arrival": "05:21",
+        "departure": "05:21"
+      },
+      {
+        "stnCode": "OKA",
+        "stnName": "OKHLA",
+        "arrival": "05:28",
+        "departure": "05:28"
+      },
+      {
+        "stnCode": "NZM",
+        "stnName": "DELHI H NIZAMUDDIN",
+        "arrival": "05:32",
+        "departure": "05:32"
+      },
+      {
+        "stnCode": "LPNR",
+        "stnName": "LAJPAT NAGAR",
+        "arrival": "05:34",
+        "departure": "05:34"
+      },
+      {
+        "stnCode": "SWNR",
+        "stnName": "SEWA NAGAR",
+        "arrival": "05:35",
+        "departure": "05:35"
+      },
+      {
+        "stnCode": "LDCY",
+        "stnName": "LODI COLONY",
+        "arrival": "05:35",
+        "departure": "05:35"
+      },
+      {
+        "stnCode": "SOJ",
+        "stnName": "SAROJINI NAGAR",
+        "arrival": "05:35",
+        "departure": "05:35"
+      }
+    ],
+    "DSJ": [
+      {
+        "stnCode": "CNKP",
+        "stnName": "CHANAKYAPURI",
+        "arrival": "05:45",
+        "departure": "05:45"
+      },
+      {
+        "stnCode": "SDPR",
+        "stnName": "SARDAR PATEL ROAD",
+        "arrival": "05:46",
+        "departure": "05:46"
+      },
+      {
+        "stnCode": "BRSQ",
+        "stnName": "BRAR SQUARE",
+        "arrival": "05:54",
+        "departure": "05:54"
+      },
+      {
+        "stnCode": "DLPI",
+        "stnName": "INDRAPURI",
+        "arrival": "05:56",
+        "departure": "05:56"
+      },
+      {
+        "stnCode": "NRVR",
+        "stnName": "NARAINA VIHAR",
+        "arrival": "06:01",
+        "departure": "06:01"
+      },
+      {
+        "stnCode": "KRTN",
+        "stnName": "KIRTI NAGAR",
+        "arrival": "06:06",
+        "departure": "06:06"
+      },
+      {
+        "stnCode": "PTNR",
+        "stnName": "PATEL NAGAR",
+        "arrival": "06:08",
+        "departure": "06:08"
+      },
+      {
+        "stnCode": "DBSI",
+        "stnName": "DAYA BASTI",
+        "arrival": "06:12",
+        "departure": "06:12"
+      }
+    ],
+    "DEE": []
+  }
+}

@@ -1,0 +1,1827 @@
+{
+  "18495": {
+    "RMM": [
+      {
+        "stnCode": "PBM",
+        "stnName": "PAMBAN JN",
+        "arrival": "08:12",
+        "departure": "08:12"
+      },
+      {
+        "stnCode": "MMM",
+        "stnName": "MANDAPAM",
+        "arrival": "08:20",
+        "departure": "08:20"
+      },
+      {
+        "stnCode": "MC",
+        "stnName": "MANDAPAM CAMP",
+        "arrival": "08:23",
+        "departure": "08:23"
+      },
+      {
+        "stnCode": "PPVL",
+        "stnName": "PIRAPPANVALASAI",
+        "arrival": "08:35",
+        "departure": "08:35"
+      },
+      {
+        "stnCode": "UCP",
+        "stnName": "UCHIPPULI",
+        "arrival": "08:39",
+        "departure": "08:39"
+      },
+      {
+        "stnCode": "VTV",
+        "stnName": "VALANTARAVAL",
+        "arrival": "08:52",
+        "departure": "08:52"
+      },
+      {
+        "stnCode": "RMD",
+        "stnName": "RAMANATHAPURAM",
+        "arrival": "09:03",
+        "departure": "09:05"
+      },
+      {
+        "stnCode": "SQD",
+        "stnName": "SATTIRAKKUDI",
+        "arrival": "09:20",
+        "departure": "09:20"
+      },
+      {
+        "stnCode": "PMK",
+        "stnName": "PARAMAKKUDI",
+        "arrival": "09:39",
+        "departure": "09:40"
+      },
+      {
+        "stnCode": "SUX",
+        "stnName": "SUDIYUR",
+        "arrival": "10:00",
+        "departure": "10:00"
+      }
+    ],
+    "MNM": [
+      {
+        "stnCode": "MNME",
+        "stnName": "Manamadurai East",
+        "arrival": "10:22",
+        "departure": "10:22"
+      },
+      {
+        "stnCode": "SVGA",
+        "stnName": "Sivaganga",
+        "arrival": "10:43",
+        "departure": "10:44"
+      },
+      {
+        "stnCode": "NTS",
+        "stnName": "Nattrasankottai",
+        "arrival": "10:52",
+        "departure": "10:52"
+      },
+      {
+        "stnCode": "PNGI",
+        "stnName": "Panangudi",
+        "arrival": "10:54",
+        "departure": "10:54"
+      },
+      {
+        "stnCode": "KAL",
+        "stnName": "Kallai",
+        "arrival": "11:18",
+        "departure": "11:18"
+      },
+      {
+        "stnCode": "DKO",
+        "stnName": "Devakottai Road",
+        "arrival": "11:36",
+        "departure": "11:36"
+      }
+    ],
+    "KKDI": [
+      {
+        "stnCode": "KTYR",
+        "stnName": "Kottaiyur",
+        "arrival": "11:51",
+        "departure": "11:51"
+      },
+      {
+        "stnCode": "CTND",
+        "stnName": "Chettinad",
+        "arrival": "11:55",
+        "departure": "11:55"
+      },
+      {
+        "stnCode": "TYM",
+        "stnName": "Tirumayam",
+        "arrival": "12:04",
+        "departure": "12:04"
+      },
+      {
+        "stnCode": "NMN",
+        "stnName": "Namanasamudram",
+        "arrival": "12:14",
+        "departure": "12:14"
+      },
+      {
+        "stnCode": "PDKT",
+        "stnName": "Pudukkottai",
+        "arrival": "12:19",
+        "departure": "12:20"
+      },
+      {
+        "stnCode": "VEL",
+        "stnName": "Vellanur",
+        "arrival": "12:35",
+        "departure": "12:35"
+      },
+      {
+        "stnCode": "NTM",
+        "stnName": "Narthamalai",
+        "arrival": "12:43",
+        "departure": "12:43"
+      },
+      {
+        "stnCode": "KUTR",
+        "stnName": "Kulathur",
+        "arrival": "12:51",
+        "departure": "12:51"
+      },
+      {
+        "stnCode": "KRUR",
+        "stnName": "Keeranur",
+        "arrival": "12:52",
+        "departure": "12:52"
+      },
+      {
+        "stnCode": "TNLR",
+        "stnName": "Thondaimanallur",
+        "arrival": "13:02",
+        "departure": "13:02"
+      },
+      {
+        "stnCode": "KRMG",
+        "stnName": "Kumaramangalam",
+        "arrival": "13:13",
+        "departure": "13:13"
+      }
+    ],
+    "TPJ": [
+      {
+        "stnCode": "GOC",
+        "stnName": "PONMALAI GOLDEN ROCK",
+        "arrival": "13:43",
+        "departure": "13:43"
+      },
+      {
+        "stnCode": "MCJ",
+        "stnName": "MANJATTIDAL",
+        "arrival": "13:45",
+        "departure": "13:45"
+      },
+      {
+        "stnCode": "TRB",
+        "stnName": "TIRUVERUMBUR",
+        "arrival": "13:50",
+        "departure": "13:50"
+      },
+      {
+        "stnCode": "TOM",
+        "stnName": "TONDAMANPATTI",
+        "arrival": "13:55",
+        "departure": "13:55"
+      },
+      {
+        "stnCode": "SGM",
+        "stnName": "SOLGAMPATTI",
+        "arrival": "14:01",
+        "departure": "14:01"
+      },
+      {
+        "stnCode": "AYN",
+        "stnName": "AIYANAPURAM",
+        "arrival": "14:07",
+        "departure": "14:07"
+      },
+      {
+        "stnCode": "BAL",
+        "stnName": "BUDALUR",
+        "arrival": "14:12",
+        "departure": "14:12"
+      },
+      {
+        "stnCode": "ALK",
+        "stnName": "ALAKKUDI",
+        "arrival": "14:20",
+        "departure": "14:20"
+      },
+      {
+        "stnCode": "TJ",
+        "stnName": "THANJAVUR",
+        "arrival": "14:30",
+        "departure": "14:32"
+      },
+      {
+        "stnCode": "TT",
+        "stnName": "TITTE",
+        "arrival": "14:40",
+        "departure": "14:40"
+      },
+      {
+        "stnCode": "PVL",
+        "stnName": "PASUPATIKOVIL",
+        "arrival": "14:45",
+        "departure": "14:45"
+      },
+      {
+        "stnCode": "AZP",
+        "stnName": "AYYAMPET",
+        "arrival": "14:47",
+        "departure": "14:47"
+      },
+      {
+        "stnCode": "PDV",
+        "stnName": "PANDARAVADAI",
+        "arrival": "14:50",
+        "departure": "14:50"
+      },
+      {
+        "stnCode": "PML",
+        "stnName": "PAPANASAM",
+        "arrival": "14:53",
+        "departure": "14:53"
+      },
+      {
+        "stnCode": "SPL",
+        "stnName": "SUNDARAPERUMAL KOVIL",
+        "arrival": "14:58",
+        "departure": "14:58"
+      },
+      {
+        "stnCode": "SWI",
+        "stnName": "SWAMIMALAI",
+        "arrival": "14:59",
+        "departure": "14:59"
+      },
+      {
+        "stnCode": "DSM",
+        "stnName": "DARASURAM",
+        "arrival": "15:02",
+        "departure": "15:02"
+      },
+      {
+        "stnCode": "KMU",
+        "stnName": "KUMBAKONAM",
+        "arrival": "15:05",
+        "departure": "15:06"
+      },
+      {
+        "stnCode": "TRM",
+        "stnName": "TIRUNAGESVARAM",
+        "arrival": "15:11",
+        "departure": "15:11"
+      },
+      {
+        "stnCode": "TDR",
+        "stnName": "TIRUVIDAIMARUTHUR",
+        "arrival": "15:14",
+        "departure": "15:14"
+      },
+      {
+        "stnCode": "ADT",
+        "stnName": "ADUTURAI",
+        "arrival": "15:18",
+        "departure": "15:18"
+      },
+      {
+        "stnCode": "NPT",
+        "stnName": "NARASINGAMPET",
+        "arrival": "15:22",
+        "departure": "15:22"
+      },
+      {
+        "stnCode": "KTM",
+        "stnName": "KUTRALAM",
+        "arrival": "15:29",
+        "departure": "15:29"
+      },
+      {
+        "stnCode": "MY",
+        "stnName": "MALLIYAM",
+        "arrival": "15:33",
+        "departure": "15:33"
+      },
+      {
+        "stnCode": "MV",
+        "stnName": "MAYILADUTURAI JN",
+        "arrival": "15:38",
+        "departure": "15:40"
+      },
+      {
+        "stnCode": "NID",
+        "stnName": "NIDUR",
+        "arrival": "15:44",
+        "departure": "15:44"
+      },
+      {
+        "stnCode": "ANP",
+        "stnName": "ANANDTANDAVPUR",
+        "arrival": "15:47",
+        "departure": "15:47"
+      },
+      {
+        "stnCode": "VDL",
+        "stnName": "VITHISVARANKOL",
+        "arrival": "15:55",
+        "departure": "15:55"
+      },
+      {
+        "stnCode": "SY",
+        "stnName": "SIRKAZHI",
+        "arrival": "16:01",
+        "departure": "16:02"
+      },
+      {
+        "stnCode": "ARS",
+        "stnName": "ARASUR",
+        "arrival": "16:08",
+        "departure": "16:08"
+      },
+      {
+        "stnCode": "CLN",
+        "stnName": "KOLLIDAM",
+        "arrival": "16:19",
+        "departure": "16:19"
+      },
+      {
+        "stnCode": "VMP",
+        "stnName": "VALLAMPADUGAI",
+        "arrival": "16:23",
+        "departure": "16:23"
+      },
+      {
+        "stnCode": "CDM",
+        "stnName": "CHIDAMBARAM",
+        "arrival": "16:31",
+        "departure": "16:31"
+      },
+      {
+        "stnCode": "KII",
+        "stnName": "KILLE",
+        "arrival": "16:40",
+        "departure": "16:40"
+      },
+      {
+        "stnCode": "PO",
+        "stnName": "PARANGIPETTAI",
+        "arrival": "16:49",
+        "departure": "16:49"
+      },
+      {
+        "stnCode": "PUC",
+        "stnName": "PUDUCHATIRAM",
+        "arrival": "17:01",
+        "departure": "17:01"
+      },
+      {
+        "stnCode": "ALP",
+        "stnName": "ALAPAKAM",
+        "arrival": "17:15",
+        "departure": "17:15"
+      },
+      {
+        "stnCode": "CQS",
+        "stnName": "CAPPER QUARRY",
+        "arrival": "17:27",
+        "departure": "17:27"
+      },
+      {
+        "stnCode": "CUPJ",
+        "stnName": "CUDDALORE PORT",
+        "arrival": "17:35",
+        "departure": "17:35"
+      },
+      {
+        "stnCode": "CUD",
+        "stnName": "TIRUPPAPPULIYUR",
+        "arrival": "17:41",
+        "departure": "17:41"
+      },
+      {
+        "stnCode": "TDPR",
+        "stnName": "TIRUPADRIPULYUR",
+        "arrival": "17:42",
+        "departure": "17:42"
+      },
+      {
+        "stnCode": "VKP",
+        "stnName": "VARAKALPATTU",
+        "arrival": "17:50",
+        "departure": "17:50"
+      },
+      {
+        "stnCode": "NPM",
+        "stnName": "NELLAIKUPPAM",
+        "arrival": "17:58",
+        "departure": "17:58"
+      },
+      {
+        "stnCode": "MBU",
+        "stnName": "MELPATTAM BAKKAM",
+        "arrival": "18:06",
+        "departure": "18:06"
+      },
+      {
+        "stnCode": "PRT",
+        "stnName": "PANRUTI",
+        "arrival": "18:19",
+        "departure": "18:19"
+      },
+      {
+        "stnCode": "TUY",
+        "stnName": "THIRUTHURAIYUR",
+        "arrival": "18:29",
+        "departure": "18:29"
+      },
+      {
+        "stnCode": "SXR",
+        "stnName": "SERNDANUR",
+        "arrival": "18:39",
+        "departure": "18:39"
+      }
+    ],
+    "VM": [
+      {
+        "stnCode": "MYP",
+        "stnName": "MUNDILYAMPAKKAM",
+        "arrival": "19:02",
+        "departure": "19:02"
+      },
+      {
+        "stnCode": "VVN",
+        "stnName": "VIKRAVANDI",
+        "arrival": "19:09",
+        "departure": "19:09"
+      },
+      {
+        "stnCode": "PEI",
+        "stnName": "PERANI",
+        "arrival": "19:19",
+        "departure": "19:19"
+      },
+      {
+        "stnCode": "MTL",
+        "stnName": "MAILAM",
+        "arrival": "19:29",
+        "departure": "19:29"
+      },
+      {
+        "stnCode": "TMV",
+        "stnName": "TINDIVANAM",
+        "arrival": "19:41",
+        "departure": "19:41"
+      },
+      {
+        "stnCode": "OLA",
+        "stnName": "OLAKUR",
+        "arrival": "19:55",
+        "departure": "19:55"
+      },
+      {
+        "stnCode": "KSGL",
+        "stnName": "KARASANGAL",
+        "arrival": "20:01",
+        "departure": "20:01"
+      },
+      {
+        "stnCode": "TZD",
+        "stnName": "TOZHUPPEDU",
+        "arrival": "20:07",
+        "departure": "20:07"
+      },
+      {
+        "stnCode": "ACK",
+        "stnName": "ACHARAPAKKAM",
+        "arrival": "20:14",
+        "departure": "20:14"
+      },
+      {
+        "stnCode": "MLMR",
+        "stnName": "MELMARUVATTUR",
+        "arrival": "20:18",
+        "departure": "20:18"
+      },
+      {
+        "stnCode": "MMK",
+        "stnName": "MADURANTAKAM",
+        "arrival": "20:31",
+        "departure": "20:31"
+      },
+      {
+        "stnCode": "KGZ",
+        "stnName": "KARUNGUZHI",
+        "arrival": "20:36",
+        "departure": "20:36"
+      },
+      {
+        "stnCode": "PTM",
+        "stnName": "PADALAM",
+        "arrival": "20:45",
+        "departure": "20:45"
+      },
+      {
+        "stnCode": "OV",
+        "stnName": "OTIVAKKAM",
+        "arrival": "20:51",
+        "departure": "20:51"
+      },
+      {
+        "stnCode": "CGL",
+        "stnName": "CHENGALPATTU",
+        "arrival": "21:01",
+        "departure": "21:01"
+      },
+      {
+        "stnCode": "PWU",
+        "stnName": "PARANUR",
+        "arrival": "21:07",
+        "departure": "21:07"
+      },
+      {
+        "stnCode": "SKL",
+        "stnName": "SINGAPERUMAL KOIL",
+        "arrival": "21:11",
+        "departure": "21:11"
+      },
+      {
+        "stnCode": "MMNK",
+        "stnName": "MARAIMALAM NAGAR",
+        "arrival": "21:17",
+        "departure": "21:17"
+      },
+      {
+        "stnCode": "CTM",
+        "stnName": "KATTANGULATTUR",
+        "arrival": "21:18",
+        "departure": "21:18"
+      },
+      {
+        "stnCode": "POTI",
+        "stnName": "POTHERI HALT",
+        "arrival": "21:21",
+        "departure": "21:21"
+      },
+      {
+        "stnCode": "GI",
+        "stnName": "GUDUVANCHERI",
+        "arrival": "21:25",
+        "departure": "21:25"
+      },
+      {
+        "stnCode": "UPM",
+        "stnName": "URAPPAKKAM",
+        "arrival": "21:29",
+        "departure": "21:29"
+      },
+      {
+        "stnCode": "VDR",
+        "stnName": "VANDALUR",
+        "arrival": "21:33",
+        "departure": "21:33"
+      },
+      {
+        "stnCode": "PRGL",
+        "stnName": "PERUNGULATTUR",
+        "arrival": "21:35",
+        "departure": "21:35"
+      },
+      {
+        "stnCode": "TBM",
+        "stnName": "TAMBARAM",
+        "arrival": "21:39",
+        "departure": "21:39"
+      },
+      {
+        "stnCode": "TBMS",
+        "stnName": "TAMBARAM SANATORIUM",
+        "arrival": "21:42",
+        "departure": "21:42"
+      },
+      {
+        "stnCode": "CMP",
+        "stnName": "CHROMEPET",
+        "arrival": "21:44",
+        "departure": "21:44"
+      },
+      {
+        "stnCode": "PV",
+        "stnName": "PALLAVARAM",
+        "arrival": "21:47",
+        "departure": "21:47"
+      },
+      {
+        "stnCode": "STM",
+        "stnName": "ST THOMAS MOUNT",
+        "arrival": "21:54",
+        "departure": "21:54"
+      },
+      {
+        "stnCode": "GDY",
+        "stnName": "GUINDY",
+        "arrival": "21:56",
+        "departure": "21:56"
+      },
+      {
+        "stnCode": "SP",
+        "stnName": "SAIDAPET",
+        "arrival": "21:59",
+        "departure": "21:59"
+      },
+      {
+        "stnCode": "MBM",
+        "stnName": "MAMBALAM",
+        "arrival": "22:01",
+        "departure": "22:01"
+      },
+      {
+        "stnCode": "MKK",
+        "stnName": "KODAMBAKAM",
+        "arrival": "22:03",
+        "departure": "22:03"
+      },
+      {
+        "stnCode": "NBK",
+        "stnName": "NUNGAMBAKKAM",
+        "arrival": "22:05",
+        "departure": "22:05"
+      },
+      {
+        "stnCode": "MSC",
+        "stnName": "CHENNAI CHETPAT",
+        "arrival": "22:07",
+        "departure": "22:07"
+      }
+    ],
+    "MS": [
+      {
+        "stnCode": "MPK",
+        "stnName": "CHENNAI PARK",
+        "arrival": "22:32",
+        "departure": "22:32"
+      },
+      {
+        "stnCode": "MPKT",
+        "stnName": "CHENNAI PARK TOWN",
+        "arrival": "22:32",
+        "departure": "22:32"
+      },
+      {
+        "stnCode": "MSF",
+        "stnName": "CHENNAI FORT",
+        "arrival": "22:33",
+        "departure": "22:33"
+      },
+      {
+        "stnCode": "MSB",
+        "stnName": "CHENNAI BEACH",
+        "arrival": "22:35",
+        "departure": "22:35"
+      },
+      {
+        "stnCode": "RPM",
+        "stnName": "ROYAPURAM",
+        "arrival": "22:37",
+        "departure": "22:37"
+      },
+      {
+        "stnCode": "WST",
+        "stnName": "WASHERMANPET",
+        "arrival": "22:38",
+        "departure": "22:38"
+      },
+      {
+        "stnCode": "KOK",
+        "stnName": "KORUKKUPET JN",
+        "arrival": "22:40",
+        "departure": "22:40"
+      },
+      {
+        "stnCode": "TNP",
+        "stnName": "TONDIARPETTAI",
+        "arrival": "22:41",
+        "departure": "22:41"
+      },
+      {
+        "stnCode": "VOC",
+        "stnName": "V.O.C. NAGAR",
+        "arrival": "22:43",
+        "departure": "22:43"
+      },
+      {
+        "stnCode": "TVT",
+        "stnName": "TIRUVOTTIYUR",
+        "arrival": "22:46",
+        "departure": "22:46"
+      },
+      {
+        "stnCode": "WCN",
+        "stnName": "WIMCO NAGAR",
+        "arrival": "22:49",
+        "departure": "22:49"
+      },
+      {
+        "stnCode": "KAVM",
+        "stnName": "KATHIVAKKAM",
+        "arrival": "22:52",
+        "departure": "22:52"
+      },
+      {
+        "stnCode": "ENR",
+        "stnName": "ENNORE",
+        "arrival": "22:54",
+        "departure": "22:54"
+      },
+      {
+        "stnCode": "AIP",
+        "stnName": "ATTIPPATTU",
+        "arrival": "23:01",
+        "departure": "23:01"
+      },
+      {
+        "stnCode": "NPKM",
+        "stnName": "NANDIYAMPAKKAM",
+        "arrival": "23:03",
+        "departure": "23:03"
+      },
+      {
+        "stnCode": "MJR",
+        "stnName": "MINJUR",
+        "arrival": "23:05",
+        "departure": "23:05"
+      },
+      {
+        "stnCode": "APB",
+        "stnName": "ANUPPAMBATTU",
+        "arrival": "23:10",
+        "departure": "23:10"
+      },
+      {
+        "stnCode": "PON",
+        "stnName": "PONNERI",
+        "arrival": "23:16",
+        "departure": "23:16"
+      },
+      {
+        "stnCode": "KVP",
+        "stnName": "KAVARAIPPETTAI",
+        "arrival": "23:23",
+        "departure": "23:23"
+      },
+      {
+        "stnCode": "GPD",
+        "stnName": "GUMMIDIPUNDI",
+        "arrival": "23:30",
+        "departure": "23:30"
+      },
+      {
+        "stnCode": "ELR",
+        "stnName": "ELAVUR",
+        "arrival": "23:37",
+        "departure": "23:37"
+      },
+      {
+        "stnCode": "AKM",
+        "stnName": "ARAMBAKKAM",
+        "arrival": "23:48",
+        "departure": "23:48"
+      },
+      {
+        "stnCode": "TADA",
+        "stnName": "TADA",
+        "arrival": "23:57",
+        "departure": "23:57"
+      },
+      {
+        "stnCode": "AKAT",
+        "stnName": "AKKAMPET",
+        "arrival": "00:08",
+        "departure": "00:08"
+      },
+      {
+        "stnCode": "SPE",
+        "stnName": "SULLURUPETA",
+        "arrival": "00:11",
+        "departure": "00:11"
+      },
+      {
+        "stnCode": "PEL",
+        "stnName": "POLIREDDIPALEM",
+        "arrival": "00:21",
+        "departure": "00:21"
+      },
+      {
+        "stnCode": "DVR",
+        "stnName": "DORAVARI CHATRAM",
+        "arrival": "00:24",
+        "departure": "00:24"
+      },
+      {
+        "stnCode": "NYP",
+        "stnName": "NAYADUPETA",
+        "arrival": "00:43",
+        "departure": "00:43"
+      },
+      {
+        "stnCode": "PYA",
+        "stnName": "PEDAPARIYA",
+        "arrival": "00:58",
+        "departure": "00:58"
+      },
+      {
+        "stnCode": "ODUR",
+        "stnName": "ODUR",
+        "arrival": "01:05",
+        "departure": "01:05"
+      },
+      {
+        "stnCode": "GDR",
+        "stnName": "GUDUR JN",
+        "arrival": "01:15",
+        "departure": "01:17"
+      },
+      {
+        "stnCode": "MBL",
+        "stnName": "MANUBOLU",
+        "arrival": "01:25",
+        "departure": "01:25"
+      },
+      {
+        "stnCode": "VKT",
+        "stnName": "VENKATACHALAM",
+        "arrival": "01:36",
+        "departure": "01:36"
+      },
+      {
+        "stnCode": "VDE",
+        "stnName": "VEDAYAPALEM",
+        "arrival": "01:44",
+        "departure": "01:44"
+      },
+      {
+        "stnCode": "NLS",
+        "stnName": "NELLORE SOUTH",
+        "arrival": "01:49",
+        "departure": "01:49"
+      },
+      {
+        "stnCode": "NLR",
+        "stnName": "NELLORE",
+        "arrival": "01:50",
+        "departure": "01:50"
+      },
+      {
+        "stnCode": "PGU",
+        "stnName": "PADUGUPADU",
+        "arrival": "01:54",
+        "departure": "01:54"
+      },
+      {
+        "stnCode": "KJJ",
+        "stnName": "KODAVALURU",
+        "arrival": "02:00",
+        "departure": "02:00"
+      },
+      {
+        "stnCode": "TMC",
+        "stnName": "TALAMANCHI",
+        "arrival": "02:04",
+        "departure": "02:04"
+      },
+      {
+        "stnCode": "AXR",
+        "stnName": "ALLURU ROAD",
+        "arrival": "02:14",
+        "departure": "02:14"
+      },
+      {
+        "stnCode": "BTTR",
+        "stnName": "BITRAGUNTA",
+        "arrival": "02:20",
+        "departure": "02:20"
+      },
+      {
+        "stnCode": "SVPM",
+        "stnName": "S VENKTESWRPALM",
+        "arrival": "02:24",
+        "departure": "02:24"
+      },
+      {
+        "stnCode": "KVZ",
+        "stnName": "KAVALI",
+        "arrival": "02:34",
+        "departure": "02:34"
+      },
+      {
+        "stnCode": "TTU",
+        "stnName": "TETTU",
+        "arrival": "02:47",
+        "departure": "02:47"
+      },
+      {
+        "stnCode": "UPD",
+        "stnName": "ULAVAPADU",
+        "arrival": "02:59",
+        "departure": "02:59"
+      },
+      {
+        "stnCode": "SKM",
+        "stnName": "SINGARAYAKONDA",
+        "arrival": "03:07",
+        "departure": "03:07"
+      },
+      {
+        "stnCode": "TNR",
+        "stnName": "TANGUTURU",
+        "arrival": "03:15",
+        "departure": "03:15"
+      },
+      {
+        "stnCode": "SDM",
+        "stnName": "SURAREDDIPALEM",
+        "arrival": "03:22",
+        "departure": "03:22"
+      },
+      {
+        "stnCode": "OGL",
+        "stnName": "ONGOLE",
+        "arrival": "03:31",
+        "departure": "03:31"
+      },
+      {
+        "stnCode": "KRV",
+        "stnName": "KARAVADI",
+        "arrival": "03:39",
+        "departure": "03:39"
+      },
+      {
+        "stnCode": "ANB",
+        "stnName": "AMMANABROLU",
+        "arrival": "03:44",
+        "departure": "03:44"
+      },
+      {
+        "stnCode": "RPRL",
+        "stnName": "RAPARLA HALT",
+        "arrival": "03:47",
+        "departure": "03:47"
+      },
+      {
+        "stnCode": "UGD",
+        "stnName": "UPPUGUNDURU",
+        "arrival": "03:51",
+        "departure": "03:51"
+      },
+      {
+        "stnCode": "CJM",
+        "stnName": "CHINNA GANJAM",
+        "arrival": "03:57",
+        "departure": "03:57"
+      },
+      {
+        "stnCode": "KVDU",
+        "stnName": "KADAVAKUDURU",
+        "arrival": "04:01",
+        "departure": "04:01"
+      },
+      {
+        "stnCode": "KPLL",
+        "stnName": "KOTTA PANDILA PALLI",
+        "arrival": "04:05",
+        "departure": "04:05"
+      },
+      {
+        "stnCode": "VTM",
+        "stnName": "VETAPALEMU",
+        "arrival": "04:07",
+        "departure": "04:07"
+      },
+      {
+        "stnCode": "JAQ",
+        "stnName": "JANDRAPETA",
+        "arrival": "04:11",
+        "departure": "04:11"
+      },
+      {
+        "stnCode": "CLX",
+        "stnName": "CHIRALA",
+        "arrival": "04:14",
+        "departure": "04:14"
+      },
+      {
+        "stnCode": "IPPN",
+        "stnName": "IPURUPALEM HALT",
+        "arrival": "04:18",
+        "departure": "04:18"
+      },
+      {
+        "stnCode": "IPPM",
+        "stnName": "IPURUPALEM",
+        "arrival": "04:18",
+        "departure": "04:18"
+      },
+      {
+        "stnCode": "SPF",
+        "stnName": "STUARTPURAM",
+        "arrival": "04:20",
+        "departure": "04:20"
+      },
+      {
+        "stnCode": "BPP",
+        "stnName": "BAPATLA",
+        "arrival": "04:27",
+        "departure": "04:27"
+      },
+      {
+        "stnCode": "APL",
+        "stnName": "APPIKATLA",
+        "arrival": "04:35",
+        "departure": "04:35"
+      },
+      {
+        "stnCode": "MCVM",
+        "stnName": "MACHAVARAM",
+        "arrival": "04:41",
+        "departure": "04:41"
+      },
+      {
+        "stnCode": "NDO",
+        "stnName": "NIDUBROLU",
+        "arrival": "04:45",
+        "departure": "04:45"
+      },
+      {
+        "stnCode": "MDKU",
+        "stnName": "MODUKURU",
+        "arrival": "04:51",
+        "departure": "04:51"
+      },
+      {
+        "stnCode": "TSR",
+        "stnName": "TSUNDURU",
+        "arrival": "04:54",
+        "departure": "04:54"
+      },
+      {
+        "stnCode": "TEL",
+        "stnName": "TENALI JN",
+        "arrival": "05:04",
+        "departure": "05:04"
+      },
+      {
+        "stnCode": "KLX",
+        "stnName": "KOLAKALUR",
+        "arrival": "05:09",
+        "departure": "05:09"
+      },
+      {
+        "stnCode": "DIG",
+        "stnName": "DUGGIRALA",
+        "arrival": "05:13",
+        "departure": "05:13"
+      },
+      {
+        "stnCode": "CLVR",
+        "stnName": "CHILUVUR",
+        "arrival": "05:18",
+        "departure": "05:18"
+      },
+      {
+        "stnCode": "PVD",
+        "stnName": "PEDDAVADIAPUDI",
+        "arrival": "05:21",
+        "departure": "05:21"
+      },
+      {
+        "stnCode": "KAQ",
+        "stnName": "KOLANUKONDA",
+        "arrival": "05:24",
+        "departure": "05:24"
+      },
+      {
+        "stnCode": "KCC",
+        "stnName": "KRISHNA CANAL",
+        "arrival": "05:27",
+        "departure": "05:27"
+      }
+    ],
+    "BZA": [
+      {
+        "stnCode": "GALA",
+        "stnName": "GUNADALA",
+        "arrival": "05:46",
+        "departure": "05:46"
+      },
+      {
+        "stnCode": "MBD",
+        "stnName": "MUSTABADA",
+        "arrival": "05:53",
+        "departure": "05:53"
+      },
+      {
+        "stnCode": "GWM",
+        "stnName": "GANNAVARAM",
+        "arrival": "06:00",
+        "departure": "06:00"
+      },
+      {
+        "stnCode": "PAVP",
+        "stnName": "PEDDA AVUTAPALE",
+        "arrival": "06:04",
+        "departure": "06:04"
+      },
+      {
+        "stnCode": "TOU",
+        "stnName": "TELAPROLU",
+        "arrival": "06:11",
+        "departure": "06:11"
+      },
+      {
+        "stnCode": "VRVL",
+        "stnName": "VIRAVALLI",
+        "arrival": "06:14",
+        "departure": "06:14"
+      },
+      {
+        "stnCode": "NZD",
+        "stnName": "NUZVID",
+        "arrival": "06:21",
+        "departure": "06:21"
+      },
+      {
+        "stnCode": "VAT",
+        "stnName": "VATLUR",
+        "arrival": "06:30",
+        "departure": "06:30"
+      },
+      {
+        "stnCode": "PRH",
+        "stnName": "POWERPET",
+        "arrival": "06:37",
+        "departure": "06:37"
+      },
+      {
+        "stnCode": "EE",
+        "stnName": "ELURU",
+        "arrival": "06:39",
+        "departure": "06:39"
+      },
+      {
+        "stnCode": "DEL",
+        "stnName": "DENDULURU",
+        "arrival": "06:48",
+        "departure": "06:48"
+      },
+      {
+        "stnCode": "STPT",
+        "stnName": "SITAMPET",
+        "arrival": "06:52",
+        "departure": "06:52"
+      },
+      {
+        "stnCode": "BMD",
+        "stnName": "BHIMADOLU",
+        "arrival": "06:57",
+        "departure": "06:57"
+      },
+      {
+        "stnCode": "PUA",
+        "stnName": "PULLA",
+        "arrival": "07:04",
+        "departure": "07:04"
+      },
+      {
+        "stnCode": "KKRM",
+        "stnName": "KAIKORAM",
+        "arrival": "07:08",
+        "departure": "07:08"
+      },
+      {
+        "stnCode": "CEL",
+        "stnName": "CHEBROL",
+        "arrival": "07:12",
+        "departure": "07:12"
+      },
+      {
+        "stnCode": "VGT",
+        "stnName": "UNGUTURU",
+        "arrival": "07:15",
+        "departure": "07:15"
+      },
+      {
+        "stnCode": "BPY",
+        "stnName": "BADAMPUDI",
+        "arrival": "07:20",
+        "departure": "07:20"
+      },
+      {
+        "stnCode": "TDD",
+        "stnName": "TADEPALLIGUDEM",
+        "arrival": "07:26",
+        "departure": "07:26"
+      },
+      {
+        "stnCode": "PTPU",
+        "stnName": "PRATTIAPADU",
+        "arrival": "07:31",
+        "departure": "07:31"
+      },
+      {
+        "stnCode": "NBM",
+        "stnName": "NAVABPALEM",
+        "arrival": "07:35",
+        "departure": "07:35"
+      },
+      {
+        "stnCode": "MRPL",
+        "stnName": "MARAMPALLI",
+        "arrival": "07:38",
+        "departure": "07:38"
+      },
+      {
+        "stnCode": "NDD",
+        "stnName": "NIDADAVOLU JN",
+        "arrival": "07:46",
+        "departure": "07:46"
+      },
+      {
+        "stnCode": "BMGM",
+        "stnName": "BRAHMANAGUDEM",
+        "arrival": "07:49",
+        "departure": "07:49"
+      },
+      {
+        "stnCode": "CU",
+        "stnName": "CHAGALLU",
+        "arrival": "07:53",
+        "departure": "07:53"
+      },
+      {
+        "stnCode": "PSDA",
+        "stnName": "PASIVEDALA",
+        "arrival": "07:57",
+        "departure": "07:57"
+      },
+      {
+        "stnCode": "KVR",
+        "stnName": "KOVVUR",
+        "arrival": "08:00",
+        "departure": "08:00"
+      },
+      {
+        "stnCode": "GVN",
+        "stnName": "GODAVARI",
+        "arrival": "08:05",
+        "departure": "08:05"
+      },
+      {
+        "stnCode": "RJY",
+        "stnName": "RAJAMUNDRY",
+        "arrival": "08:07",
+        "departure": "08:07"
+      },
+      {
+        "stnCode": "KYM",
+        "stnName": "KADIYAN",
+        "arrival": "08:17",
+        "departure": "08:17"
+      },
+      {
+        "stnCode": "KSVM",
+        "stnName": "KESAVARAM",
+        "arrival": "08:23",
+        "departure": "08:23"
+      },
+      {
+        "stnCode": "DWP",
+        "stnName": "DWARAPUDI",
+        "arrival": "08:27",
+        "departure": "08:27"
+      },
+      {
+        "stnCode": "APT",
+        "stnName": "ANAPARTI",
+        "arrival": "08:31",
+        "departure": "08:31"
+      },
+      {
+        "stnCode": "BBPM",
+        "stnName": "BALABHADRAPURAM",
+        "arrival": "08:37",
+        "departure": "08:37"
+      },
+      {
+        "stnCode": "BVL",
+        "stnName": "BIKKAVOLU",
+        "arrival": "08:40",
+        "departure": "08:40"
+      },
+      {
+        "stnCode": "PBD",
+        "stnName": "PEDABRAMADVAM",
+        "arrival": "08:46",
+        "departure": "08:46"
+      },
+      {
+        "stnCode": "MPU",
+        "stnName": "MEDAPADU",
+        "arrival": "08:48",
+        "departure": "08:48"
+      },
+      {
+        "stnCode": "GDPT",
+        "stnName": "GUDAPARTI",
+        "arrival": "08:53",
+        "departure": "08:53"
+      },
+      {
+        "stnCode": "SLO",
+        "stnName": "SAMALKOT JN",
+        "arrival": "08:57",
+        "departure": "08:57"
+      },
+      {
+        "stnCode": "PAP",
+        "stnName": "PITHAPURAM",
+        "arrival": "09:09",
+        "departure": "09:09"
+      },
+      {
+        "stnCode": "GLP",
+        "stnName": "GOLLAPROLU",
+        "arrival": "09:15",
+        "departure": "09:15"
+      },
+      {
+        "stnCode": "DGDG",
+        "stnName": "DURGADA GATE",
+        "arrival": "09:24",
+        "departure": "09:24"
+      },
+      {
+        "stnCode": "RVD",
+        "stnName": "RAVIKAMPADU",
+        "arrival": "09:27",
+        "departure": "09:27"
+      },
+      {
+        "stnCode": "ANV",
+        "stnName": "ANNAVARAM",
+        "arrival": "09:34",
+        "departure": "09:34"
+      },
+      {
+        "stnCode": "TMPM",
+        "stnName": "TIMMAPURAM",
+        "arrival": "09:37",
+        "departure": "09:37"
+      },
+      {
+        "stnCode": "HVM",
+        "stnName": "HAMSAVARAM",
+        "arrival": "09:42",
+        "departure": "09:42"
+      },
+      {
+        "stnCode": "TUNI",
+        "stnName": "TUNI",
+        "arrival": "09:50",
+        "departure": "09:50"
+      },
+      {
+        "stnCode": "GLU",
+        "stnName": "GULLIPADU",
+        "arrival": "10:01",
+        "departure": "10:01"
+      },
+      {
+        "stnCode": "NRP",
+        "stnName": "NARSIPATNAM RD",
+        "arrival": "10:12",
+        "departure": "10:12"
+      },
+      {
+        "stnCode": "REG",
+        "stnName": "REGUPALEM",
+        "arrival": "10:21",
+        "departure": "10:21"
+      },
+      {
+        "stnCode": "YLM",
+        "stnName": "ELLAMANCHILI",
+        "arrival": "10:30",
+        "departure": "10:30"
+      },
+      {
+        "stnCode": "NASP",
+        "stnName": "NARASINGAPALLI",
+        "arrival": "10:37",
+        "departure": "10:37"
+      },
+      {
+        "stnCode": "BVM",
+        "stnName": "BAYYAVARAM",
+        "arrival": "10:44",
+        "departure": "10:44"
+      },
+      {
+        "stnCode": "KSK",
+        "stnName": "KASIMKOTA",
+        "arrival": "10:48",
+        "departure": "10:48"
+      },
+      {
+        "stnCode": "AKP",
+        "stnName": "ANAKAPALLE",
+        "arrival": "10:53",
+        "departure": "10:53"
+      },
+      {
+        "stnCode": "THY",
+        "stnName": "THADI",
+        "arrival": "10:59",
+        "departure": "10:59"
+      },
+      {
+        "stnCode": "DVD",
+        "stnName": "DUVVADA",
+        "arrival": "11:09",
+        "departure": "11:10"
+      },
+      {
+        "stnCode": "MIPM",
+        "stnName": "MARRIPALEM",
+        "arrival": "11:33",
+        "departure": "11:33"
+      }
+    ],
+    "VSKP": [
+      {
+        "stnCode": "MIPM",
+        "stnName": "MARRIPALEM",
+        "arrival": "12:07",
+        "departure": "12:07"
+      },
+      {
+        "stnCode": "SCM",
+        "stnName": "SIMHACHALAM",
+        "arrival": "12:09",
+        "departure": "12:09"
+      },
+      {
+        "stnCode": "SCMN",
+        "stnName": "SIMHACHALAM NORTH",
+        "arrival": "12:10",
+        "departure": "12:10"
+      },
+      {
+        "stnCode": "PDT",
+        "stnName": "PENDURTI",
+        "arrival": "12:14",
+        "departure": "12:14"
+      },
+      {
+        "stnCode": "KTV",
+        "stnName": "KOTTAVALASA",
+        "arrival": "12:18",
+        "departure": "12:18"
+      },
+      {
+        "stnCode": "KPL",
+        "stnName": "KANTAKAPALLE",
+        "arrival": "12:22",
+        "departure": "12:22"
+      },
+      {
+        "stnCode": "ALM",
+        "stnName": "ALAMANDA",
+        "arrival": "12:27",
+        "departure": "12:27"
+      },
+      {
+        "stnCode": "KUK",
+        "stnName": "KORUKONDA",
+        "arrival": "12:30",
+        "departure": "12:30"
+      }
+    ],
+    "VZM": [
+      {
+        "stnCode": "NML",
+        "stnName": "NELLIMARIA",
+        "arrival": "13:00",
+        "departure": "13:00"
+      },
+      {
+        "stnCode": "GVI",
+        "stnName": "GARIVIDI",
+        "arrival": "13:11",
+        "departure": "13:11"
+      },
+      {
+        "stnCode": "CPP",
+        "stnName": "CHIPURUPALLE",
+        "arrival": "13:17",
+        "departure": "13:17"
+      },
+      {
+        "stnCode": "BTVA",
+        "stnName": "BATUVA",
+        "arrival": "13:22",
+        "departure": "13:22"
+      },
+      {
+        "stnCode": "SGDM",
+        "stnName": "SIGADAM",
+        "arrival": "13:28",
+        "departure": "13:28"
+      },
+      {
+        "stnCode": "PDU",
+        "stnName": "PONDURU",
+        "arrival": "13:37",
+        "departure": "13:37"
+      },
+      {
+        "stnCode": "DUSI",
+        "stnName": "DUSI",
+        "arrival": "13:44",
+        "departure": "13:44"
+      },
+      {
+        "stnCode": "CHE",
+        "stnName": "SRIKAKULAM ROAD",
+        "arrival": "13:50",
+        "departure": "13:50"
+      },
+      {
+        "stnCode": "ULM",
+        "stnName": "URLAM",
+        "arrival": "13:59",
+        "departure": "13:59"
+      },
+      {
+        "stnCode": "TIU",
+        "stnName": "TILARU",
+        "arrival": "14:07",
+        "departure": "14:07"
+      },
+      {
+        "stnCode": "HCM",
+        "stnName": "HARISHCHANDRAPURAM",
+        "arrival": "14:12",
+        "departure": "14:12"
+      },
+      {
+        "stnCode": "KBM",
+        "stnName": "KOTABOMMALI",
+        "arrival": "14:19",
+        "departure": "14:19"
+      },
+      {
+        "stnCode": "DGB",
+        "stnName": "DINDU GOPALA PURAM HALT",
+        "arrival": "14:26",
+        "departure": "14:26"
+      },
+      {
+        "stnCode": "NWP",
+        "stnName": "NAUPADA JN",
+        "arrival": "14:31",
+        "departure": "14:31"
+      },
+      {
+        "stnCode": "RMZ",
+        "stnName": "ROUTHPURAM HALT",
+        "arrival": "14:37",
+        "departure": "14:37"
+      },
+      {
+        "stnCode": "PUN",
+        "stnName": "PUNDI",
+        "arrival": "14:42",
+        "departure": "14:42"
+      },
+      {
+        "stnCode": "PSA",
+        "stnName": "PALASA",
+        "arrival": "14:53",
+        "departure": "14:53"
+      },
+      {
+        "stnCode": "SUDV",
+        "stnName": "SUMMADEVI",
+        "arrival": "15:00",
+        "departure": "15:00"
+      },
+      {
+        "stnCode": "MMS",
+        "stnName": "MANDASA ROAD",
+        "arrival": "15:04",
+        "departure": "15:04"
+      },
+      {
+        "stnCode": "BAV",
+        "stnName": "BARUVA",
+        "arrival": "15:12",
+        "departure": "15:12"
+      },
+      {
+        "stnCode": "SPT",
+        "stnName": "SOMPETA",
+        "arrival": "15:20",
+        "departure": "15:20"
+      },
+      {
+        "stnCode": "JPI",
+        "stnName": "JHADUPUDI",
+        "arrival": "15:26",
+        "departure": "15:26"
+      },
+      {
+        "stnCode": "IPM",
+        "stnName": "ICHCHPURAM",
+        "arrival": "15:36",
+        "departure": "15:36"
+      },
+      {
+        "stnCode": "SLRD",
+        "stnName": "SURLA ROAD",
+        "arrival": "15:43",
+        "departure": "15:43"
+      },
+      {
+        "stnCode": "GTA",
+        "stnName": "GOLANTHRA",
+        "arrival": "15:48",
+        "departure": "15:48"
+      }
+    ],
+    "BAM": [
+      {
+        "stnCode": "JNP",
+        "stnName": "JAGAN NATHAPUR",
+        "arrival": "16:10",
+        "departure": "16:10"
+      },
+      {
+        "stnCode": "NRSP",
+        "stnName": "NARASIMHAPURA",
+        "arrival": "16:18",
+        "departure": "16:18"
+      },
+      {
+        "stnCode": "CAP",
+        "stnName": "CHATRAPUR",
+        "arrival": "16:21",
+        "departure": "16:21"
+      },
+      {
+        "stnCode": "CAPC",
+        "stnName": "CHATRAPUR COURT",
+        "arrival": "16:22",
+        "departure": "16:22"
+      },
+      {
+        "stnCode": "GAM",
+        "stnName": "GANJAM",
+        "arrival": "16:29",
+        "departure": "16:29"
+      },
+      {
+        "stnCode": "HMA",
+        "stnName": "HUMMA",
+        "arrival": "16:34",
+        "departure": "16:34"
+      },
+      {
+        "stnCode": "RBA",
+        "stnName": "RAMBHA",
+        "arrival": "16:44",
+        "departure": "16:44"
+      },
+      {
+        "stnCode": "KIT",
+        "stnName": "KHALLIKOT",
+        "arrival": "16:54",
+        "departure": "16:54"
+      },
+      {
+        "stnCode": "KLJI",
+        "stnName": "KALIJAI",
+        "arrival": "16:58",
+        "departure": "16:58"
+      },
+      {
+        "stnCode": "CLKA",
+        "stnName": "CHILKA",
+        "arrival": "17:02",
+        "departure": "17:02"
+      },
+      {
+        "stnCode": "BALU",
+        "stnName": "BALUGAON",
+        "arrival": "17:09",
+        "departure": "17:09"
+      },
+      {
+        "stnCode": "SLZ",
+        "stnName": "SOLARI",
+        "arrival": "17:16",
+        "departure": "17:16"
+      },
+      {
+        "stnCode": "GNGD",
+        "stnName": "GANGADHARPUR",
+        "arrival": "17:20",
+        "departure": "17:20"
+      },
+      {
+        "stnCode": "KUU",
+        "stnName": "KUHURI",
+        "arrival": "17:27",
+        "departure": "17:27"
+      },
+      {
+        "stnCode": "KAPG",
+        "stnName": "KALUPARA GHAT",
+        "arrival": "17:33",
+        "departure": "17:33"
+      },
+      {
+        "stnCode": "MKTP",
+        "stnName": "MUKETASHWAR",
+        "arrival": "17:37",
+        "departure": "17:37"
+      },
+      {
+        "stnCode": "BSDP",
+        "stnName": "BHUSANDPUR",
+        "arrival": "17:42",
+        "departure": "17:42"
+      },
+      {
+        "stnCode": "NKP",
+        "stnName": "NIRAKARPUR",
+        "arrival": "17:48",
+        "departure": "17:48"
+      },
+      {
+        "stnCode": "GLBA",
+        "stnName": "GOLABAI",
+        "arrival": "17:51",
+        "departure": "17:51"
+      },
+      {
+        "stnCode": "TAP",
+        "stnName": "TAPANG",
+        "arrival": "17:55",
+        "departure": "17:55"
+      },
+      {
+        "stnCode": "DLMH",
+        "stnName": "DHAULIMUHAN",
+        "arrival": "17:59",
+        "departure": "17:59"
+      },
+      {
+        "stnCode": "KPXR",
+        "stnName": "KAIPADA ROAD",
+        "arrival": "18:03",
+        "departure": "18:03"
+      },
+      {
+        "stnCode": "ARGL",
+        "stnName": "ARGUL",
+        "arrival": "18:06",
+        "departure": "18:06"
+      }
+    ],
+    "KUR": [
+      {
+        "stnCode": "RTN",
+        "stnName": "RETANG",
+        "arrival": "18:27",
+        "departure": "18:27"
+      },
+      {
+        "stnCode": "LGTR",
+        "stnName": "LINGARAJ TEMPLE ROAD",
+        "arrival": "18:38",
+        "departure": "18:38"
+      }
+    ],
+    "BBS": []
+  }
+}

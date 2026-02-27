@@ -1,0 +1,63 @@
+{
+  "53450": {
+    "BGP": [
+      {
+        "stnCode": "KKTA",
+        "stnName": "Kollikhutaha",
+        "arrival": "05:45",
+        "departure": "05:46"
+      },
+      {
+        "stnCode": "GIF",
+        "stnName": "Gani Dham Halt",
+        "arrival": "05:53",
+        "departure": "05:54"
+      },
+      {
+        "stnCode": "HPLE",
+        "stnName": "Hatpuraini",
+        "arrival": "05:59",
+        "departure": "06:00"
+      },
+      {
+        "stnCode": "TKLE",
+        "stnName": "Tikani",
+        "arrival": "06:12",
+        "departure": "06:13"
+      },
+      {
+        "stnCode": "SJJ",
+        "stnName": "Sanjha",
+        "arrival": "06:22",
+        "departure": "06:23"
+      },
+      {
+        "stnCode": "DWLE",
+        "stnName": "Dhauni",
+        "arrival": "06:38",
+        "departure": "06:39"
+      },
+      {
+        "stnCode": "PNSA",
+        "stnName": "Punsia",
+        "arrival": "06:54",
+        "departure": "06:55"
+      }
+    ],
+    "BHLE": [
+      {
+        "stnCode": "TELY",
+        "stnName": "Telia",
+        "arrival": "08:20",
+        "departure": "08:21"
+      },
+      {
+        "stnCode": "MRHA",
+        "stnName": "Murahara",
+        "arrival": "08:30",
+        "departure": "08:31"
+      }
+    ],
+    "BAKA": []
+  }
+}
