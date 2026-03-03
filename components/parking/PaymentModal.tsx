@@ -9,7 +9,7 @@ import {
     DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Loader2, CreditCard } from "lucide-react";
+import { Loader2, CreditCard, ShieldCheck } from "lucide-react";
 
 interface PaymentModalProps {
     isOpen: boolean;
@@ -34,7 +34,7 @@ export function PaymentModal({
                 <DialogHeader>
                     <DialogTitle>Confirm Parking Booking</DialogTitle>
                     <DialogDescription>
-                        You are booking Slot P-{slotId}. complete the payment to confirm your spot.
+                        You are booking Slot P-{slotId}. Complete the payment to confirm your spot.
                     </DialogDescription>
                 </DialogHeader>
 
@@ -45,6 +45,10 @@ export function PaymentModal({
                     <div className="text-center">
                         <p className="text-sm text-gray-500">Total Amount</p>
                         <p className="text-3xl font-bold text-gray-900">₹{amount}</p>
+                    </div>
+                    <div className="flex items-center gap-2 text-xs text-gray-400">
+                        <ShieldCheck className="w-3.5 h-3.5" />
+                        <span>Secured by Razorpay • UPI, Cards, Wallets</span>
                     </div>
                 </div>
 
@@ -57,7 +61,7 @@ export function PaymentModal({
                         disabled={loading}
                         className="w-full bg-indigo-600 hover:bg-indigo-700 text-white"
                     >
-                        {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : 'Pay Now'}
+                        {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : 'Pay with Razorpay'}
                     </Button>
                 </DialogFooter>
             </DialogContent>

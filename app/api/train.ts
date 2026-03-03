@@ -136,24 +136,51 @@ app.get('/live/:trainNo', async (c) => {
             fullSequence.push(...learnedStations);
         }
 
+        // Helper to format HH:mm into HH:MM DD-Mon based on a reference date string (like "16:20 27-Feb")
+        const formatPassingTime = (timeStr: string, refTimeStr?: string) => {
+            if (!timeStr || !refTimeStr) return timeStr || '';
+            const refParts = refTimeStr.replace(/\*/g, '').trim().split(' ');
+            if (refParts.length < 2) return timeStr;
+            // E.g., refParts[1] is "27-Feb"
+            return `${timeStr} ${refParts[1]}*`;
+        };
+
         const mergedSegments: Record<string, { stnCode: string; stnName: string; arrival?: string; departure?: string }[]> = {};
-        let currentRealHalt: string | null = null;
+        let currentRealHalt: any = null;
 
         for (const stn of fullSequence) {
             if (stn.isKey) {
-                if (officialHalts.has(stn.stnCode)) currentRealHalt = stn.stnCode;
+                if (officialHalts.has(stn.stnCode)) {
+                    currentRealHalt = liveRes.data?.stations.find((s: any) => s.stationCode === stn.stnCode);
+                }
                 continue;
             }
 
             if (officialHalts.has(stn.stnCode)) {
                 // This passing station from offline DB is actually an official halt today!
-                currentRealHalt = stn.stnCode;
+                currentRealHalt = liveRes.data?.stations.find((s: any) => s.stationCode === stn.stnCode);
             } else {
                 // True passing station. Map it under the current real halt.
                 if (currentRealHalt) {
-                    if (!mergedSegments[currentRealHalt]) mergedSegments[currentRealHalt] = [];
-                    if (!mergedSegments[currentRealHalt].some((s) => s.stnCode === stn.stnCode)) {
-                        mergedSegments[currentRealHalt].push(stn);
+                    const haltCode = currentRealHalt.stationCode;
+                    if (!mergedSegments[haltCode]) mergedSegments[haltCode] = [];
+                    if (!mergedSegments[haltCode].some((s) => s.stnCode === stn.stnCode)) {
+
+                        // Extract base reference time from the preceding halt
+                        const refTime = currentRealHalt.departure?.scheduled || currentRealHalt.arrival?.scheduled;
+
+                        mergedSegments[haltCode].push({
+                            ...stn,
+                            arrival: formatPassingTime(stn.arrival, refTime),
+                            departure: formatPassingTime(stn.departure, refTime),
+                            _rawArr: stn.arrival // keep raw for sorting
+                        });
+
+                        // Sort the segment chronologically so passing stations are always in proper time order
+                        mergedSegments[haltCode].sort((a: any, b: any) => {
+                            if (!a._rawArr || !b._rawArr) return 0;
+                            return a._rawArr.localeCompare(b._rawArr);
+                        });
                     }
                 }
             }
@@ -166,8 +193,48 @@ app.get('/live/:trainNo', async (c) => {
         Object.entries(mergedSegments).forEach(([haltCode, passingStations]) => {
             const haltIdx = mergedRoute.findIndex((r) => r.stnCode === haltCode);
             if (haltIdx !== -1) {
-                const toAdd = passingStations.filter(
-                    (ps) => !mergedRoute.some((mr) => mr.stnCode === ps.stnCode)
+                let maxAllowedRaw = "23:59";
+                for (let k = haltIdx + 1; k < mergedRoute.length; k++) {
+                    const nextHalt = mergedRoute[k];
+                    const nextTime = nextHalt.arrival?.scheduled || nextHalt.departure?.scheduled || nextHalt.arrival || nextHalt.departure;
+                    if (nextTime && typeof nextTime === "string") {
+                        const candidate = nextTime.split(" ")[0].replace(/\*/g, '').trim();
+                        if (candidate !== "SRC" && candidate !== "DST" && candidate !== "") {
+                            maxAllowedRaw = candidate;
+                            break;
+                        }
+                    }
+                }
+
+                // Filter out any passing station where the raw time > next halt's raw time
+                // This prevents weird UI jumps caused by database mismatches (e.g. 16:50 passing > 16:49 halt)
+                const validPassingStations = passingStations.filter((ps: any) => {
+                    const rawTime = (ps._rawArr || "").trim();
+                    if (!rawTime || maxAllowedRaw === "23:59") return true;
+
+                    const [psH, psM] = rawTime.split(':').map(Number);
+                    const [mxH, mxM] = maxAllowedRaw.split(':').map(Number);
+
+                    if (isNaN(psH) || isNaN(mxH)) return true;
+
+                    // If they are on the same day context (difference is small, e.g., within 4 hours)
+                    // and passing time is logically greater, drop it.
+                    const psTotalMins = psH * 60 + psM;
+                    const mxTotalMins = mxH * 60 + mxM;
+
+                    // Detect if they are near each other (prevents dropping actual midnight rollovers)
+                    if (Math.abs(psTotalMins - mxTotalMins) < 240) {
+                        return psTotalMins <= mxTotalMins;
+                    }
+
+                    return true;
+                });
+
+                // Update the original map so the JSON response receives the filtered list
+                mergedSegments[haltCode] = validPassingStations;
+
+                const toAdd = validPassingStations.filter(
+                    (ps: any) => !mergedRoute.some((mr) => mr.stnCode === ps.stnCode)
                 );
                 if (toAdd.length > 0) {
                     const formattedAdd = toAdd.map((ps) => ({
@@ -216,6 +283,27 @@ app.get('/station/:stnCode', async (c) => {
         return c.json(response);
     } catch (error: any) {
         return c.json({ error: error.message || 'Failed to fetch station status' }, 500);
+    }
+});
+
+// Get Seat Availability
+app.get('/availability/:trainNo', async (c) => {
+    const trainNo = c.req.param('trainNo');
+    const from = c.req.query('from');
+    const to = c.req.query('to');
+    const date = c.req.query('date');
+    const coach = c.req.query('class') || 'SL';
+    const quota = c.req.query('quota') || 'GN';
+
+    if (!from || !to || !date) {
+        return c.json({ success: false, error: 'Missing required parameters: from, to, date' }, 400);
+    }
+
+    try {
+        const response = await irctc.getAvailability(trainNo, from, to, date, coach, quota);
+        return c.json(response);
+    } catch (error: any) {
+        return c.json({ error: error.message || 'Failed to fetch seat availability' }, 500);
     }
 });
 

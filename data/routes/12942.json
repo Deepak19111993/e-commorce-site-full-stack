@@ -1102,6 +1102,10 @@
         "stnName": "GURLA",
         "arrival": "17:42",
         "departure": "17:42"
+      },
+      {
+        "stnCode": "SWM",
+        "stnName": "SAWAI MADHOPUR JN"
       }
     ],
     "KOTA": [
@@ -1584,6 +1588,20 @@
         "departure": "05:42"
       }
     ],
-    "ADI": []
+    "ADI": [],
+    "GGC": [
+      {
+        "stnCode": "MXL",
+        "stnName": "MOKHOLI"
+      },
+      {
+        "stnCode": "RNT",
+        "stnName": "RANTHAMBHORE"
+      },
+      {
+        "stnCode": "SMDC",
+        "stnName": "SWAI MADHOPUR D CABI"
+      }
+    ]
   }
 }

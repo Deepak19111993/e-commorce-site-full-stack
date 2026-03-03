@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Landmark, Search, Clock, Train, ArrowRight, Check, ChevronsUpDown, Loader2 } from 'lucide-react';
+import { Landmark, Search, Clock, Train, ArrowRight, Check, ChevronsUpDown, Loader2, ChevronDown, AlertCircle } from 'lucide-react';
+import TrainDetailsExpanded from '@/components/train/TrainDetailsExpanded';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Popover,
@@ -23,6 +24,38 @@ export default function LiveStationPage() {
     const [error, setError] = useState('');
     const [selectedStationName, setSelectedStationName] = useState('');
     const [popoverWidth, setPopoverWidth] = useState<number | string>('auto');
+    const [expandedTrain, setExpandedTrain] = useState<string | null>(null);
+    const [trainDetails, setTrainDetails] = useState<Record<string, any>>({});
+    const [detailsLoading, setDetailsLoading] = useState<Record<string, boolean>>({});
+
+    const toggleExpand = async (trainNo: string) => {
+        if (expandedTrain === trainNo) {
+            setExpandedTrain(null);
+            return;
+        }
+
+        setExpandedTrain(trainNo);
+
+        if (!trainDetails[trainNo]) {
+            setDetailsLoading(prev => ({ ...prev, [trainNo]: true }));
+            try {
+                const res = await fetch(`/api/train/info/${trainNo}`);
+                const json = await res.json();
+                if (json.success !== false) {
+                    const rawData = json.data || json;
+                    const info = {
+                        ...(rawData.trainInfo || rawData),
+                        route: rawData.route || json.route // Ensure route is captured
+                    };
+                    setTrainDetails(prev => ({ ...prev, [trainNo]: info }));
+                }
+            } catch (err) {
+                console.error("Failed to fetch train details:", err);
+            } finally {
+                setDetailsLoading(prev => ({ ...prev, [trainNo]: false }));
+            }
+        }
+    };
 
     useEffect(() => {
         const fetchStations = async () => {
@@ -241,65 +274,142 @@ export default function LiveStationPage() {
                                                 </tr>
                                             </thead>
                                             <tbody className="divide-y divide-gray-100">
-                                                {data.map((train: any, i: number) => (
-                                                    <tr key={i} className="hover:bg-gray-50">
-                                                        <td className="px-6 py-4">
-                                                            <div className="font-bold text-gray-900">{train.trainno}</div>
-                                                            <div className="text-xs text-gray-500">{train.trainname}</div>
-                                                        </td>
-                                                        <td className="px-6 py-4">
-                                                            <div className="flex items-center gap-1">
-                                                                <Clock size={14} className="text-orange-600" />
-                                                                <span className="font-medium text-gray-900">{train.timeat}</span>
-                                                            </div>
-                                                        </td>
-                                                        <td className="px-6 py-4">
-                                                            <div className="flex items-center gap-1">
-                                                                {train.source}
-                                                            </div>
-                                                        </td>
-                                                        <td className="px-6 py-4">
-                                                            <div className="flex items-center gap-1">
-                                                                {train.dest}
-                                                            </div>
-                                                        </td>
-                                                    </tr>
-                                                ))}
+                                                {data.map((train: any, i: number) => {
+                                                    const isExpanded = expandedTrain === train.trainno;
+                                                    const details = trainDetails[train.trainno];
+                                                    const isDetailLoading = detailsLoading[train.trainno];
+
+                                                    return (
+                                                        <React.Fragment key={i}>
+                                                            <tr
+                                                                className={`hover:bg-gray-50 cursor-pointer transition-colors ${isExpanded ? 'bg-orange-50/30' : ''}`}
+                                                                onClick={() => toggleExpand(train.trainno)}
+                                                            >
+                                                                <td className="px-6 py-4">
+                                                                    <div className="flex items-center gap-3">
+                                                                        <div className="bg-orange-50 p-1.5 rounded-lg">
+                                                                            <Train className="w-4 h-4 text-orange-600" />
+                                                                        </div>
+                                                                        <div>
+                                                                            <div className="font-bold text-gray-900 flex items-center gap-2">
+                                                                                {train.trainno}
+                                                                                <ChevronDown className={`w-3.5 h-3.5 text-gray-400 transition-transform duration-300 ${isExpanded ? 'rotate-180 text-orange-500' : ''}`} />
+                                                                            </div>
+                                                                            <div className="text-xs text-gray-500 leading-tight max-w-[180px] truncate">{train.trainname}</div>
+                                                                        </div>
+                                                                    </div>
+                                                                </td>
+                                                                <td className="px-6 py-4">
+                                                                    <div className="flex items-center gap-1.5 bg-gray-50 px-2.5 py-1 rounded inline-flex">
+                                                                        <Clock size={14} className="text-orange-600 font-bold" />
+                                                                        <span className="font-bold text-gray-900">{train.timeat}</span>
+                                                                    </div>
+                                                                </td>
+                                                                <td className="px-6 py-4 font-medium text-gray-700">{train.source}</td>
+                                                                <td className="px-6 py-4 font-medium text-gray-700">{train.dest}</td>
+                                                            </tr>
+                                                            {isExpanded && (
+                                                                <tr>
+                                                                    <td colSpan={4} className="p-0 border-b-2 border-orange-200 bg-white">
+                                                                        {isDetailLoading ? (
+                                                                            <div className="flex items-center justify-center p-12">
+                                                                                <Loader2 className="w-8 h-8 text-orange-500 animate-spin" />
+                                                                            </div>
+                                                                        ) : details ? (
+                                                                            <TrainDetailsExpanded
+                                                                                trainNo={train.trainno}
+                                                                                fromStnCode={details.from_stn_code}
+                                                                                toStnCode={details.to_stn_code}
+                                                                                date={new Date()}
+                                                                                runningDays={details.running_days}
+                                                                                currentStnCode={stnCode}
+                                                                                route={details.route}
+                                                                                trainType={details.type}
+                                                                            />
+                                                                        ) : (
+                                                                            <div className="p-8 text-center text-red-500 flex flex-col items-center gap-2">
+                                                                                <AlertCircle size={24} />
+                                                                                <span className="font-medium">Failed to load additional train details. Please try again.</span>
+                                                                            </div>
+                                                                        )}
+                                                                    </td>
+                                                                </tr>
+                                                            )}
+                                                        </React.Fragment>
+                                                    );
+                                                })}
                                             </tbody>
                                         </table>
                                     </div>
 
                                     {/* Mobile Card View */}
                                     <div className="md:hidden flex flex-col divide-y divide-gray-100">
-                                        {data.map((train: any, i: number) => (
-                                            <div key={i} className="p-4 hover:bg-orange-50/50 transition-colors">
-                                                <div className="flex justify-between items-start mb-3">
-                                                    <div>
-                                                        <div className="font-bold text-gray-900 text-sm flex items-center gap-2">
-                                                            <Train className="w-3.5 h-3.5 text-orange-500" />
-                                                            {train.trainno}
-                                                        </div>
-                                                        <div className="text-[10px] text-gray-500 leading-tight mt-0.5 max-w-[180px] truncate">{train.trainname}</div>
-                                                    </div>
-                                                    <div className="flex items-center gap-1 text-xs font-semibold bg-orange-50 text-orange-700 px-2 py-1 rounded-full">
-                                                        <Clock size={12} />
-                                                        {train.timeat}
-                                                    </div>
-                                                </div>
+                                        {data.map((train: any, i: number) => {
+                                            const isExpanded = expandedTrain === train.trainno;
+                                            const details = trainDetails[train.trainno];
+                                            const isDetailLoading = detailsLoading[train.trainno];
 
-                                                <div className="flex justify-between items-center text-xs font-medium pt-2 border-t border-gray-100">
-                                                    <div className="flex items-center gap-1.5 text-gray-600">
-                                                        <span className="text-[9px] text-gray-400 uppercase tracking-wider">From:</span>
-                                                        <span className="text-gray-900">{train.source}</span>
+                                            return (
+                                                <div key={i} className="bg-white">
+                                                    <div
+                                                        className={`p-4 hover:bg-orange-50/50 transition-colors cursor-pointer ${isExpanded ? 'bg-orange-50/30' : ''}`}
+                                                        onClick={() => toggleExpand(train.trainno)}
+                                                    >
+                                                        <div className="flex justify-between items-start mb-3">
+                                                            <div>
+                                                                <div className="font-bold text-gray-900 text-sm flex items-center gap-2">
+                                                                    <Train className="w-3.5 h-3.5 text-orange-500" />
+                                                                    {train.trainno}
+                                                                    <ChevronDown className={`w-3.5 h-3.5 text-gray-400 transition-transform duration-300 ${isExpanded ? 'rotate-180 text-orange-500' : ''}`} />
+                                                                </div>
+                                                                <div className="text-[10px] text-gray-500 leading-tight mt-0.5 max-w-[180px] truncate">{train.trainname}</div>
+                                                            </div>
+                                                            <div className="flex items-center gap-1 text-xs font-semibold bg-orange-50 text-orange-700 px-2 py-1 rounded-full border border-orange-100/50">
+                                                                <Clock size={12} />
+                                                                {train.timeat}
+                                                            </div>
+                                                        </div>
+
+                                                        <div className="flex justify-between items-center text-xs font-medium pt-2 border-t border-gray-100">
+                                                            <div className="flex items-center gap-1.5 text-gray-600">
+                                                                <span className="text-[9px] text-gray-400 uppercase tracking-wider">From:</span>
+                                                                <span className="text-gray-900">{train.source}</span>
+                                                            </div>
+                                                            <ArrowRight className="w-3.5 h-3.5 text-gray-300" />
+                                                            <div className="flex items-center gap-1.5 text-gray-600">
+                                                                <span className="text-[9px] text-gray-400 uppercase tracking-wider">To:</span>
+                                                                <span className="text-gray-900">{train.dest}</span>
+                                                            </div>
+                                                        </div>
                                                     </div>
-                                                    <ArrowRight className="w-3.5 h-3.5 text-gray-300" />
-                                                    <div className="flex items-center gap-1.5 text-gray-600">
-                                                        <span className="text-[9px] text-gray-400 uppercase tracking-wider">To:</span>
-                                                        <span className="text-gray-900">{train.dest}</span>
-                                                    </div>
+
+                                                    {isExpanded && (
+                                                        <div className="border-t-2 border-orange-200">
+                                                            {isDetailLoading ? (
+                                                                <div className="flex items-center justify-center p-12">
+                                                                    <Loader2 className="w-8 h-8 text-orange-500 animate-spin" />
+                                                                </div>
+                                                            ) : details ? (
+                                                                <TrainDetailsExpanded
+                                                                    trainNo={train.trainno}
+                                                                    fromStnCode={details.from_stn_code}
+                                                                    toStnCode={details.to_stn_code}
+                                                                    date={new Date()}
+                                                                    runningDays={details.running_days}
+                                                                    currentStnCode={stnCode}
+                                                                    route={details.route}
+                                                                    trainType={details.type}
+                                                                />
+                                                            ) : (
+                                                                <div className="p-8 text-center text-red-500 text-xs font-medium">
+                                                                    Failed to load additional details.
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    )}
                                                 </div>
-                                            </div>
-                                        ))}
+                                            );
+                                        })}
                                     </div>
                                 </div>
                             ) : (

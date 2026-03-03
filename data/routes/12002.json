@@ -504,6 +504,111 @@
         "departure": "14:00"
       }
     ],
-    "BPL": []
+    "BPL": [
+      {
+        "stnCode": "BPL",
+        "stnName": "BHOPAL JN."
+      }
+    ],
+    "LAR": [
+      {
+        "stnCode": "LAR",
+        "stnName": "LALITPUR"
+      },
+      {
+        "stnCode": "JRO",
+        "stnName": "JIRON"
+      },
+      {
+        "stnCode": "JLN",
+        "stnName": "JAKHALAUN"
+      },
+      {
+        "stnCode": "DUA",
+        "stnName": "DHAURA"
+      },
+      {
+        "stnCode": "MXS",
+        "stnName": "MOHASA"
+      },
+      {
+        "stnCode": "KOA",
+        "stnName": "KARONDA"
+      },
+      {
+        "stnCode": "AGD",
+        "stnName": "AGASOD"
+      }
+    ],
+    "BINA": [
+      {
+        "stnCode": "BINA",
+        "stnName": "BINA JN"
+      },
+      {
+        "stnCode": "KIKA",
+        "stnName": "KURWAI KETHORA"
+      },
+      {
+        "stnCode": "MABA",
+        "stnName": "MANDI BAMORA"
+      },
+      {
+        "stnCode": "CLHT",
+        "stnName": "CHULHETA"
+      },
+      {
+        "stnCode": "BET",
+        "stnName": "BARETH"
+      },
+      {
+        "stnCode": "BAQ",
+        "stnName": "GANJ BASODA"
+      },
+      {
+        "stnCode": "PAI",
+        "stnName": "PABAI"
+      },
+      {
+        "stnCode": "GLG",
+        "stnName": "GULABHGANJ"
+      },
+      {
+        "stnCode": "SUMR",
+        "stnName": "SUMER"
+      },
+      {
+        "stnCode": "SORI",
+        "stnName": "SORAI"
+      },
+      {
+        "stnCode": "BHS",
+        "stnName": "VIDISHA"
+      },
+      {
+        "stnCode": "SCI",
+        "stnName": "SANCHI"
+      },
+      {
+        "stnCode": "SMT",
+        "stnName": "SALAMATPUR"
+      },
+      {
+        "stnCode": "DWG",
+        "stnName": "DEWANGANJ"
+      },
+      {
+        "stnCode": "BVB",
+        "stnName": "BHADBHADAGHAT"
+      },
+      {
+        "stnCode": "SUW",
+        "stnName": "SUKHISEWANIYAN"
+      },
+      {
+        "stnCode": "NSZ",
+        "stnName": "NISHATPURA"
+      }
+    ]
   }
 }

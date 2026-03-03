@@ -78,6 +78,11 @@ export const parkingBookings = pgTable('parking_bookings', {
     startTime: timestamp('start_time').notNull(),
     endTime: timestamp('end_time').notNull(),
     paymentStatus: text('payment_status').default('pending'),
+    approvalStatus: text('approval_status').default('pending'), // pending, approved, rejected
+    adminNote: text('admin_note'), // optional rejection reason
+    entryCode: text('entry_code').unique(), // QR code value, generated on approval
+    entryTime: timestamp('entry_time'), // recorded when QR scanned at entry
+    exitTime: timestamp('exit_time'), // recorded when QR scanned at exit
     createdAt: timestamp('created_at').defaultNow(),
 });
 

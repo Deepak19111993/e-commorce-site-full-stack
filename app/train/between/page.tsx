@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { TrainTrack, Search, Clock, Train, ArrowRight, Check, ChevronsUpDown, Loader2, ArrowRightLeft, Calendar as CalendarIcon } from 'lucide-react';
+import { TrainTrack, Search, Clock, Train, ArrowRight, Check, ChevronsUpDown, Loader2, ArrowRightLeft, Calendar as CalendarIcon, ChevronDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Popover,
@@ -13,16 +13,19 @@ import {
 import { Calendar } from "@/components/ui/calendar";
 import { format, subDays } from 'date-fns';
 import { cn } from "@/lib/utils";
+import TrainDetailsExpanded from '@/components/train/TrainDetailsExpanded';
 
 // Station Search Component to avoid duplication
 const StationSearch = ({
     label,
     value,
+    name,
     onChange,
     onNameChange
 }: {
     label: string,
     value: string,
+    name: string,
     onChange: (val: string) => void,
     onNameChange: (val: string) => void
 }) => {
@@ -30,7 +33,6 @@ const StationSearch = ({
     const [searchQuery, setSearchQuery] = useState('');
     const [suggestions, setSuggestions] = useState<any[]>([]);
     const [searchLoading, setSearchLoading] = useState(false);
-    const [selectedName, setSelectedName] = useState('');
     const [popoverWidth, setPopoverWidth] = useState<number | string>('auto');
 
     useEffect(() => {
@@ -71,8 +73,8 @@ const StationSearch = ({
                         aria-expanded={open}
                         className="w-full justify-between text-sm sm:text-lg h-10 md:h-[50px] lg:h-[55px] px-4"
                     >
-                        {selectedName
-                            ? `${selectedName} (${value})`
+                        {name
+                            ? `${name} (${value})`
                             : (value ? value : "Select Station...")}
                         <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                     </Button>
@@ -114,7 +116,6 @@ const StationSearch = ({
                                     )}
                                     onClick={() => {
                                         onChange(station.code);
-                                        setSelectedName(station.name);
                                         onNameChange(station.name);
                                         setOpen(false);
                                         setSearchQuery('');
@@ -146,6 +147,7 @@ export default function TrainsBetweenPage() {
     const [toStn, setToStn] = useState('');
     const [toName, setToName] = useState('');
     const [date, setDate] = useState<Date | undefined>(new Date());
+    const [expandedTrain, setExpandedTrain] = useState<string | null>(null);
 
     const [loading, setLoading] = useState(false);
     const [data, setData] = useState<any>(null);
@@ -162,15 +164,22 @@ export default function TrainsBetweenPage() {
         setFromName(toName);
         setToStn(tempStn);
         setToName(tempName);
+
+        if (toStn && tempStn) {
+            handleSearch(toStn, tempStn);
+        }
     };
 
-    const handleSearch = async () => {
-        if (!fromStn || !toStn) {
+    const handleSearch = async (overrideFrom?: string | React.MouseEvent, overrideTo?: string) => {
+        const searchFrom = typeof overrideFrom === 'string' ? overrideFrom : fromStn;
+        const searchTo = typeof overrideTo === 'string' ? overrideTo : toStn;
+
+        if (!searchFrom || !searchTo) {
             setError('Please select both From and To stations.');
             return;
         }
 
-        if (fromStn === toStn) {
+        if (searchFrom === searchTo) {
             setError('From and To stations cannot be the same.');
             return;
         }
@@ -178,9 +187,10 @@ export default function TrainsBetweenPage() {
         setLoading(true);
         setError('');
         setData(null);
+        setExpandedTrain(null);
 
         try {
-            const res = await fetch(`/api/train/between/${fromStn}/${toStn}`);
+            const res = await fetch(`/api/train/between/${searchFrom}/${searchTo}`);
             const json = await res.json();
 
             if (!json.success && json.error) {
@@ -215,6 +225,7 @@ export default function TrainsBetweenPage() {
                         <StationSearch
                             label="From Station"
                             value={fromStn}
+                            name={fromName}
                             onChange={setFromStn}
                             onNameChange={setFromName}
                         />
@@ -245,6 +256,7 @@ export default function TrainsBetweenPage() {
                         <StationSearch
                             label="To Station"
                             value={toStn}
+                            name={toName}
                             onChange={setToStn}
                             onNameChange={setToName}
                         />
@@ -324,85 +336,141 @@ export default function TrainsBetweenPage() {
                                                 </tr>
                                             </thead>
                                             <tbody className="divide-y divide-gray-100">
-                                                {data.map((train: any, i: number) => (
-                                                    <tr key={i} className="hover:bg-orange-50/50 transition-colors">
-                                                        <td className="px-6 py-4">
-                                                            <div className="font-bold text-gray-900 text-base">{train.train_no}</div>
-                                                            <div className="text-xs text-gray-500 truncate max-w-[150px] sm:max-w-xs">{train.train_name}</div>
-                                                            {train.running_days && (
-                                                                <div className="flex gap-1 mt-1">
-                                                                    {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((day, dIdx) => (
-                                                                        <span key={dIdx} className={`text-[9px] w-3.5 h-3.5 flex items-center justify-center rounded-sm font-bold ${train.running_days[dIdx] === '1' ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-300'}`}>
-                                                                            {day}
-                                                                        </span>
-                                                                    ))}
-                                                                </div>
+                                                {data.map((train: any, i: number) => {
+                                                    const isExpanded = expandedTrain === train.train_no;
+                                                    return (
+                                                        <React.Fragment key={i}>
+                                                            <tr
+                                                                className={`hover:bg-orange-50/50 transition-colors cursor-pointer ${isExpanded ? 'bg-orange-50/30' : ''}`}
+                                                                onClick={() => setExpandedTrain(isExpanded ? null : train.train_no)}
+                                                            >
+                                                                <td className="px-6 py-4">
+                                                                    <div className="flex items-center gap-3">
+                                                                        <div className="bg-orange-50 p-2 rounded-lg">
+                                                                            <Train className="w-5 h-5 text-orange-600" />
+                                                                        </div>
+                                                                        <div>
+                                                                            <div className="font-bold text-gray-900 group-hover:text-orange-600 transition-colors flex items-center gap-2">
+                                                                                {train.train_no}
+                                                                                <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform duration-300 ${isExpanded ? 'rotate-180 text-orange-500' : ''}`} />
+                                                                            </div>
+                                                                            <div className="text-xs text-gray-500 font-medium leading-tight max-w-[200px] truncate">{train.train_name}</div>
+                                                                        </div>
+                                                                    </div>
+                                                                    {train.running_days && (
+                                                                        <div className="flex gap-1 mt-1">
+                                                                            {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((day, dIdx) => (
+                                                                                <span key={dIdx} className={`text-[9px] w-3.5 h-3.5 flex items-center justify-center rounded-sm font-bold ${train.running_days[dIdx] === '1' ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-300'}`}>
+                                                                                    {day}
+                                                                                </span>
+                                                                            ))}
+                                                                        </div>
+                                                                    )}
+                                                                </td>
+                                                                <td className="px-6 py-4">
+                                                                    <div className="font-semibold text-gray-900 text-lg">{train.from_time}</div>
+                                                                    <div className="text-xs text-gray-500">{train.from_stn_code}</div>
+                                                                </td>
+                                                                <td className="px-6 py-4">
+                                                                    <div className="font-semibold text-gray-900 text-lg">{train.to_time}</div>
+                                                                    <div className="text-xs text-gray-500">{train.to_stn_code}</div>
+                                                                </td>
+                                                                <td className="px-6 py-4">
+                                                                    <div className="flex items-center gap-1.5 text-gray-700 font-medium bg-gray-50 px-2.5 py-1 rounded inline-flex">
+                                                                        <Clock size={14} className="text-orange-500" />
+                                                                        {train.travel_time}
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                            {isExpanded && date && (
+                                                                <tr>
+                                                                    <td colSpan={4} className="p-0 border-b-2 border-orange-200">
+                                                                        <TrainDetailsExpanded
+                                                                            trainNo={train.train_no}
+                                                                            fromStnCode={train.from_stn_code}
+                                                                            toStnCode={train.to_stn_code}
+                                                                            date={date}
+                                                                            runningDays={train.running_days}
+                                                                            currentStnCode={train.from_stn_code}
+                                                                            trainType={train.train_name}
+                                                                        />
+                                                                    </td>
+                                                                </tr>
                                                             )}
-                                                        </td>
-                                                        <td className="px-6 py-4">
-                                                            <div className="font-semibold text-gray-900 text-lg">{train.from_time}</div>
-                                                            <div className="text-xs text-gray-500">{train.from_stn_code}</div>
-                                                        </td>
-                                                        <td className="px-6 py-4">
-                                                            <div className="font-semibold text-gray-900 text-lg">{train.to_time}</div>
-                                                            <div className="text-xs text-gray-500">{train.to_stn_code}</div>
-                                                        </td>
-                                                        <td className="px-6 py-4">
-                                                            <div className="flex items-center gap-1.5 text-gray-700 font-medium bg-gray-50 px-2.5 py-1 rounded inline-flex">
-                                                                <Clock size={14} className="text-orange-500" />
-                                                                {train.travel_time}
-                                                            </div>
-                                                        </td>
-                                                    </tr>
-                                                ))}
+                                                        </React.Fragment>
+                                                    );
+                                                })}
                                             </tbody>
                                         </table>
                                     </div>
 
                                     {/* Mobile Card View */}
                                     <div className="md:hidden flex flex-col divide-y divide-gray-100">
-                                        {data.map((train: any, i: number) => (
-                                            <div key={i} className="p-4 hover:bg-orange-50/50 transition-colors">
-                                                <div className="flex justify-between items-start mb-3">
-                                                    <div>
-                                                        <div className="font-bold text-gray-900 text-sm flex items-center gap-2">
-                                                            <Train className="w-3.5 h-3.5 text-orange-500" />
-                                                            {train.train_no}
+                                        {data.map((train: any, i: number) => {
+                                            const isExpanded = expandedTrain === train.train_no;
+                                            return (
+                                                <div key={i} className="bg-white">
+                                                    <div
+                                                        className={`p-4 hover:bg-orange-50/50 transition-colors cursor-pointer ${isExpanded ? 'bg-orange-50/30' : ''}`}
+                                                        onClick={() => setExpandedTrain(isExpanded ? null : train.train_no)}
+                                                    >
+                                                        <div className="flex justify-between items-start mb-3">
+                                                            <div>
+                                                                <div className="font-bold text-gray-900 text-sm flex items-center gap-2">
+                                                                    <Train className="w-3.5 h-3.5 text-orange-500" />
+                                                                    {train.train_no}
+                                                                    <ChevronDown className={`w-3.5 h-3.5 text-gray-400 transition-transform duration-300 ${isExpanded ? 'rotate-180 text-orange-500' : ''}`} />
+                                                                </div>
+                                                                <div className="text-[10px] text-gray-500 leading-tight mt-0.5 max-w-[180px] truncate">{train.train_name}</div>
+                                                            </div>
+                                                            <div className="flex items-center gap-1 text-[10px] font-semibold bg-orange-50 text-orange-700 px-1.5 py-0.5 rounded">
+                                                                <Clock size={10} />
+                                                                {train.travel_time}
+                                                            </div>
                                                         </div>
-                                                        <div className="text-[10px] text-gray-500 leading-tight mt-0.5 max-w-[180px] truncate">{train.train_name}</div>
-                                                    </div>
-                                                    <div className="flex items-center gap-1 text-[10px] font-semibold bg-orange-50 text-orange-700 px-1.5 py-0.5 rounded">
-                                                        <Clock size={10} />
-                                                        {train.travel_time}
-                                                    </div>
-                                                </div>
 
-                                                <div className="flex items-center justify-between mb-3 bg-gray-50 p-2 rounded-lg border border-gray-100/50">
-                                                    <div className="text-center flex-1">
-                                                        <div className="text-base font-bold text-gray-900">{train.from_time}</div>
-                                                        <div className="text-[10px] text-gray-500 font-medium uppercase">{train.from_stn_code}</div>
-                                                    </div>
-                                                    <div className="px-3 text-gray-400">
-                                                        <ArrowRight className="w-3.5 h-3.5" />
-                                                    </div>
-                                                    <div className="text-center flex-1">
-                                                        <div className="text-base font-bold text-gray-900">{train.to_time}</div>
-                                                        <div className="text-[10px] text-gray-500 font-medium uppercase">{train.to_stn_code}</div>
-                                                    </div>
-                                                </div>
+                                                        <div className="flex items-center justify-between mb-3 bg-gray-50 p-2 rounded-lg border border-gray-100/50">
+                                                            <div className="text-center flex-1">
+                                                                <div className="text-base font-bold text-gray-900">{train.from_time}</div>
+                                                                <div className="text-[10px] text-gray-500 font-medium uppercase">{train.from_stn_code}</div>
+                                                            </div>
+                                                            <div className="px-3 text-gray-400">
+                                                                <ArrowRight className="w-3.5 h-3.5" />
+                                                            </div>
+                                                            <div className="text-center flex-1">
+                                                                <div className="text-base font-bold text-gray-900">{train.to_time}</div>
+                                                                <div className="text-[10px] text-gray-500 font-medium uppercase">{train.to_stn_code}</div>
+                                                            </div>
+                                                        </div>
 
-                                                {train.running_days && (
-                                                    <div className="flex items-center gap-1.5 justify-center">
-                                                        <span className="text-[10px] text-gray-400 uppercase tracking-wider mr-1">Runs:</span>
-                                                        {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((day, dIdx) => (
-                                                            <span key={dIdx} className={`text-[9px] w-4 h-4 flex items-center justify-center rounded-sm font-bold ${train.running_days[dIdx] === '1' ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-300'}`}>
-                                                                {day}
-                                                            </span>
-                                                        ))}
+                                                        {train.running_days && (
+                                                            <div className="flex items-center gap-1.5 justify-center">
+                                                                <span className="text-[10px] text-gray-400 uppercase tracking-wider mr-1">Runs:</span>
+                                                                {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((day, dIdx) => (
+                                                                    <span key={dIdx} className={`text-[9px] w-4 h-4 flex items-center justify-center rounded-sm font-bold ${train.running_days[dIdx] === '1' ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-300'}`}>
+                                                                        {day}
+                                                                    </span>
+                                                                ))}
+                                                            </div>
+                                                        )}
                                                     </div>
-                                                )}
-                                            </div>
-                                        ))}
+
+                                                    {isExpanded && date && (
+                                                        <div className="border-t-2 border-orange-200">
+                                                            <TrainDetailsExpanded
+                                                                trainNo={train.train_no}
+                                                                fromStnCode={train.from_stn_code}
+                                                                toStnCode={train.to_stn_code}
+                                                                date={date}
+                                                                runningDays={train.running_days}
+                                                                currentStnCode={train.from_stn_code}
+                                                                trainType={train.train_name}
+                                                            />
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            );
+                                        })}
                                     </div>
                                 </div>
                             ) : (

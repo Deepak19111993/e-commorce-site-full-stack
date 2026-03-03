@@ -3,7 +3,11 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import { Loader2, Calendar as CalendarIcon, Clock, Car, History, MapPin } from 'lucide-react';
+import { Loader2, Calendar as CalendarIcon, Clock, Car, History, MapPin, QrCode, Map, LayoutGrid } from 'lucide-react';
+import QRCode from 'react-qr-code';
+import dynamic from 'next/dynamic';
+
+const ParkingMap = dynamic(() => import('@/components/parking/ParkingMap'), { ssr: false });
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
@@ -36,6 +40,8 @@ export default function ParkingPage() {
     const [bookingLoading, setBookingLoading] = useState(false);
     const [myBookings, setMyBookings] = useState<any[]>([]);
     const [bookingsLoading, setBookingsLoading] = useState(true);
+    const [qrModal, setQrModal] = useState<{ code: string; slotId: number } | null>(null);
+    const [viewMode, setViewMode] = useState<'grid' | 'map'>('grid');
 
     const containerVariants = {
         hidden: { opacity: 0 },
@@ -270,31 +276,123 @@ export default function ParkingPage() {
                 return;
             }
 
-            // 2. Process Payment
             const transactionId = bookData.transaction.id;
-            const payRes = await fetch('/api/parking/pay', {
+
+            // 2. Create Razorpay Order
+            const orderRes = await fetch('/api/parking/create-order', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'X-User-Id': String(user.id)
                 },
-                body: JSON.stringify({ transactionId })
+                body: JSON.stringify({ amount: 20, transactionId })
             });
 
-            if (!payRes.ok) {
-                toast.error('Payment failed');
+            const orderData = await orderRes.json();
+
+            if (!orderRes.ok) {
+                toast.error(orderData.error || 'Failed to create payment order');
                 setPaymentLoading(false);
                 return;
             }
 
-            // Success!
-            setLastTransactionId(transactionId);
-            setPaymentOpen(false);
-            setReceiptOpen(true);
+            // Demo mode — no Razorpay keys, process payment directly
+            if (orderData.demo) {
+                setPaymentOpen(false);
+                try {
+                    const payRes = await fetch('/api/parking/pay', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-User-Id': String(user.id)
+                        },
+                        body: JSON.stringify({ transactionId, demo: true })
+                    });
 
-            // Refresh data
-            fetchMyBookings();
-            checkAvailability();
+                    if (payRes.ok) {
+                        toast.success('✅ Payment successful (demo mode)');
+                        setLastTransactionId(transactionId);
+                        setReceiptOpen(true);
+                        fetchMyBookings();
+                        checkAvailability();
+                    } else {
+                        toast.error('Payment failed');
+                    }
+                } catch (err) {
+                    toast.error('Payment error');
+                } finally {
+                    setPaymentLoading(false);
+                }
+                return;
+            }
+
+            // 3. Real Razorpay — close modal and open checkout
+            setPaymentOpen(false);
+
+            // Load Razorpay script if not already loaded
+            if (!(window as any).Razorpay) {
+                await new Promise<void>((resolve, reject) => {
+                    const script = document.createElement('script');
+                    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+                    script.onload = () => resolve();
+                    script.onerror = () => reject(new Error('Failed to load Razorpay'));
+                    document.body.appendChild(script);
+                });
+            }
+
+            const options = {
+                key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+                amount: orderData.amount,
+                currency: orderData.currency,
+                name: 'Smart Parking',
+                description: `Parking Slot P-${selectedSlotForPayment}`,
+                order_id: orderData.orderId,
+                prefill: {
+                    name: user.name,
+                    email: user.email,
+                },
+                theme: {
+                    color: '#4f46e5'
+                },
+                handler: async (response: any) => {
+                    // 4. Verify payment on server
+                    try {
+                        const payRes = await fetch('/api/parking/pay', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-User-Id': String(user.id)
+                            },
+                            body: JSON.stringify({
+                                transactionId,
+                                razorpay_payment_id: response.razorpay_payment_id,
+                                razorpay_order_id: response.razorpay_order_id,
+                                razorpay_signature: response.razorpay_signature,
+                            })
+                        });
+
+                        if (payRes.ok) {
+                            setLastTransactionId(transactionId);
+                            setReceiptOpen(true);
+                            fetchMyBookings();
+                            checkAvailability();
+                        } else {
+                            toast.error('Payment verification failed');
+                        }
+                    } catch (err) {
+                        toast.error('Payment verification error');
+                    }
+                },
+                modal: {
+                    ondismiss: () => {
+                        toast.info('Payment cancelled');
+                        setPaymentLoading(false);
+                    }
+                }
+            };
+
+            const rzp = new (window as any).Razorpay(options);
+            rzp.open();
 
         } catch (error) {
             console.error(error);
@@ -503,64 +601,95 @@ export default function ParkingPage() {
                     {/* Step 2: Slot Selection */}
                     <Card className="border-none shadow-lg bg-white overflow-hidden">
                         <CardHeader className="bg-gray-50 border-b pb-4">
-                            <CardTitle className="flex items-center gap-2 text-lg">
-                                <div className="bg-indigo-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs">2</div>
-                                Choose Parking Slot
-                            </CardTitle>
+                            <div className="flex items-center justify-between">
+                                <CardTitle className="flex items-center gap-2 text-lg">
+                                    <div className="bg-indigo-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs">2</div>
+                                    Choose Parking Slot
+                                </CardTitle>
+                                <div className="flex bg-gray-200 rounded-lg p-0.5">
+                                    <button
+                                        onClick={() => setViewMode('grid')}
+                                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${viewMode === 'grid' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+                                            }`}
+                                    >
+                                        <LayoutGrid className="w-3.5 h-3.5" />
+                                        Grid
+                                    </button>
+                                    <button
+                                        onClick={() => setViewMode('map')}
+                                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${viewMode === 'map' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+                                            }`}
+                                    >
+                                        <Map className="w-3.5 h-3.5" />
+                                        Map
+                                    </button>
+                                </div>
+                            </div>
                         </CardHeader>
                         <CardContent className="sm:p-6 p-4">
                             <div>
                                 {!validRange && (
                                     <p className="text-center text-sm text-gray-500 mb-4">Please select a date and time to check precise availability. Showing all slots.</p>
                                 )}
-                                <motion.div
-                                    variants={containerVariants}
-                                    initial="hidden"
-                                    animate="show"
-                                    className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-5 gap-4"
-                                >
-                                    {allSlots.map((slotId) => {
-                                        const isAvailable = hasChecked ? availableSlots.includes(slotId) : true;
-                                        return (
-                                            <motion.button
-                                                key={slotId}
-                                                variants={itemVariants}
-                                                disabled={bookingLoading}
-                                                onClick={() => initiateBooking(slotId)}
-                                                className={`
+
+                                {viewMode === 'map' ? (
+                                    <ParkingMap
+                                        availableSlots={availableSlots}
+                                        hasChecked={hasChecked}
+                                        onBookSlot={initiateBooking}
+                                    />
+                                ) : (
+                                    <>
+                                        <motion.div
+                                            variants={containerVariants}
+                                            initial="hidden"
+                                            animate="show"
+                                            className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-5 gap-4"
+                                        >
+                                            {allSlots.map((slotId) => {
+                                                const isAvailable = hasChecked ? availableSlots.includes(slotId) : true;
+                                                return (
+                                                    <motion.button
+                                                        key={slotId}
+                                                        variants={itemVariants}
+                                                        disabled={bookingLoading}
+                                                        onClick={() => initiateBooking(slotId)}
+                                                        className={`
                                                         group relative p-4 rounded-xl text-center border-2 transition-all duration-200
                                                         flex flex-col items-center justify-center gap-3 h-32
                                                         ${isAvailable
-                                                        ? 'border-emerald-500 bg-white hover:bg-emerald-50 hover:-translate-y-1 hover:shadow-md cursor-pointer'
-                                                        : 'border-rose-200 bg-rose-50 cursor-not-allowed opacity-80'}
+                                                                ? 'border-emerald-500 bg-white hover:bg-emerald-50 hover:-translate-y-1 hover:shadow-md cursor-pointer'
+                                                                : 'border-rose-200 bg-rose-50 cursor-not-allowed opacity-80'}
                                                     `}
-                                            >
-                                                <div className={`p-2 rounded-full ${isAvailable ? 'bg-emerald-100 text-emerald-600' : 'bg-rose-100 text-rose-400'}`}>
-                                                    <Car className="w-6 h-6" />
-                                                </div>
-                                                <div>
-                                                    <span className={`block font-bold text-lg ${isAvailable ? 'text-gray-800' : 'text-rose-800'}`}>P-{slotId}</span>
-                                                    <span className={`text-[10px] uppercase font-bold tracking-wider ${isAvailable ? 'text-emerald-600' : 'text-rose-500'}`}>
-                                                        {isAvailable ? 'Available' : 'Booked'}
-                                                    </span>
-                                                </div>
-                                                {isAvailable && (
-                                                    <div className="absolute inset-x-0 bottom-0 top-0 bg-emerald-500/0 group-hover:bg-emerald-500/5 rounded-xl transition-colors" />
-                                                )}
-                                            </motion.button>
-                                        );
-                                    })}
-                                </motion.div>
-                                <div className="mt-6 flex gap-6 text-sm font-medium text-gray-600 justify-center">
-                                    <div className="flex items-center gap-2">
-                                        <div className="w-4 h-4 bg-white border-2 border-emerald-500 rounded"></div>
-                                        <span>Available</span>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <div className="w-4 h-4 bg-rose-50 border-2 border-rose-200 rounded"></div>
-                                        <span>Booked</span>
-                                    </div>
-                                </div>
+                                                    >
+                                                        <div className={`p-2 rounded-full ${isAvailable ? 'bg-emerald-100 text-emerald-600' : 'bg-rose-100 text-rose-400'}`}>
+                                                            <Car className="w-6 h-6" />
+                                                        </div>
+                                                        <div>
+                                                            <span className={`block font-bold text-lg ${isAvailable ? 'text-gray-800' : 'text-rose-800'}`}>P-{slotId}</span>
+                                                            <span className={`text-[10px] uppercase font-bold tracking-wider ${isAvailable ? 'text-emerald-600' : 'text-rose-500'}`}>
+                                                                {isAvailable ? 'Available' : 'Booked'}
+                                                            </span>
+                                                        </div>
+                                                        {isAvailable && (
+                                                            <div className="absolute inset-x-0 bottom-0 top-0 bg-emerald-500/0 group-hover:bg-emerald-500/5 rounded-xl transition-colors" />
+                                                        )}
+                                                    </motion.button>
+                                                );
+                                            })}
+                                        </motion.div>
+                                        <div className="mt-6 flex gap-6 text-sm font-medium text-gray-600 justify-center">
+                                            <div className="flex items-center gap-2">
+                                                <div className="w-4 h-4 bg-white border-2 border-emerald-500 rounded"></div>
+                                                <span>Available</span>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <div className="w-4 h-4 bg-rose-50 border-2 border-rose-200 rounded"></div>
+                                                <span>Booked</span>
+                                            </div>
+                                        </div>
+                                    </>
+                                )}
                             </div>
                         </CardContent>
                     </Card>
@@ -603,39 +732,91 @@ export default function ParkingPage() {
                                     animate="show"
                                     className="divide-y divide-gray-100"
                                 >
-                                    {myBookings.map((booking) => (
-                                        <motion.div
-                                            key={booking.id}
-                                            variants={itemVariants}
-                                            className="p-4 hover:bg-gray-50 transition-colors"
-                                        >
-                                            <div className="flex justify-between items-start mb-2">
-                                                <div className="flex items-center gap-2">
-                                                    <div className="bg-indigo-100 text-indigo-600 p-1.5 rounded">
-                                                        <Car className="w-4 h-4" />
+                                    {myBookings.map((booking) => {
+                                        const statusConfig = booking.approvalStatus === 'approved'
+                                            ? { label: 'Approved', bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-200' }
+                                            : booking.approvalStatus === 'rejected'
+                                                ? { label: 'Rejected', bg: 'bg-red-50', text: 'text-red-700', border: 'border-red-200' }
+                                                : booking.paymentStatus === 'paid_pending_approval'
+                                                    ? { label: 'Awaiting Approval', bg: 'bg-amber-50', text: 'text-amber-700', border: 'border-amber-200' }
+                                                    : { label: 'Pending Payment', bg: 'bg-gray-50', text: 'text-gray-600', border: 'border-gray-200' };
+                                        return (
+                                            <motion.div
+                                                key={booking.id}
+                                                variants={itemVariants}
+                                                className="p-4 hover:bg-gray-50 transition-colors"
+                                            >
+                                                <div className="flex justify-between items-start mb-2">
+                                                    <div className="flex items-center gap-2">
+                                                        <div className="bg-indigo-100 text-indigo-600 p-1.5 rounded">
+                                                            <Car className="w-4 h-4" />
+                                                        </div>
+                                                        <span className="font-bold text-gray-900">Slot P-{booking.slotId}</span>
                                                     </div>
-                                                    <span className="font-bold text-gray-900">Slot P-{booking.slotId}</span>
+                                                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${statusConfig.bg} ${statusConfig.text} ${statusConfig.border}`}>
+                                                        {statusConfig.label}
+                                                    </span>
                                                 </div>
-                                                <span className="text-[10px] font-mono text-gray-400">#{booking.id}</span>
-                                            </div>
-                                            <div className="space-y-1.5 ml-8">
-                                                <div className="flex items-center gap-2 text-xs text-gray-600">
-                                                    <span className="text-gray-400 font-medium w-10">Start</span>
-                                                    <span>{format(new Date(booking.startTime), "MMM dd, p")}</span>
+                                                <div className="space-y-1.5 ml-8">
+                                                    <div className="flex items-center gap-2 text-xs text-gray-600">
+                                                        <span className="text-gray-400 font-medium w-10">Start</span>
+                                                        <span>{format(new Date(booking.startTime), "MMM dd, p")}</span>
+                                                    </div>
+                                                    <div className="flex items-center gap-2 text-xs text-gray-600">
+                                                        <span className="text-gray-400 font-medium w-10">End</span>
+                                                        <span>{format(new Date(booking.endTime), "MMM dd, p")}</span>
+                                                    </div>
+                                                    {booking.adminNote && (
+                                                        <div className="text-[11px] text-red-600 bg-red-50 px-2 py-1 rounded border border-red-100 mt-1">
+                                                            <strong>Reason:</strong> {booking.adminNote}
+                                                        </div>
+                                                    )}
+                                                    {booking.entryCode && (
+                                                        <div
+                                                            className="mt-2 p-2 bg-white border border-gray-200 rounded-lg cursor-pointer hover:shadow-md transition-shadow inline-block"
+                                                            onClick={() => setQrModal({ code: booking.entryCode, slotId: booking.slotId })}
+                                                            title="Tap to enlarge QR"
+                                                        >
+                                                            <QRCode value={booking.entryCode} size={64} />
+                                                            <p className="text-[9px] text-gray-400 text-center mt-1 font-medium">Tap to enlarge</p>
+                                                        </div>
+                                                    )}
                                                 </div>
-                                                <div className="flex items-center gap-2 text-xs text-gray-600">
-                                                    <span className="text-gray-400 font-medium w-10">End</span>
-                                                    <span>{format(new Date(booking.endTime), "MMM dd, p")}</span>
-                                                </div>
-                                            </div>
-                                        </motion.div>
-                                    ))}
+                                            </motion.div>
+                                        );
+                                    })}
                                 </motion.div>
                             )}
                         </CardContent>
                     </Card>
                 </motion.div>
             </motion.div>
+
+            {/* QR Fullscreen Modal */}
+            {qrModal && (
+                <div
+                    className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+                    onClick={() => setQrModal(null)}
+                >
+                    <div className="bg-white rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl" onClick={(e) => e.stopPropagation()}>
+                        <div className="mb-4">
+                            <QrCode className="w-8 h-8 text-violet-500 mx-auto mb-2" />
+                            <h3 className="text-lg font-bold text-gray-900">Parking Entry QR</h3>
+                            <p className="text-sm text-gray-500">Slot P-{qrModal.slotId}</p>
+                        </div>
+                        <div className="bg-white p-4 rounded-2xl border-2 border-gray-100 inline-block">
+                            <QRCode value={qrModal.code} size={220} />
+                        </div>
+                        <p className="text-xs text-gray-400 mt-4">Show this QR code at the parking gate</p>
+                        <button
+                            onClick={() => setQrModal(null)}
+                            className="mt-4 w-full py-2.5 bg-gray-100 text-gray-700 rounded-xl font-semibold text-sm hover:bg-gray-200 transition-colors"
+                        >
+                            Close
+                        </button>
+                    </div>
+                </div>
+            )}
         </motion.div>
     );
 }
